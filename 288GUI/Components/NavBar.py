@@ -1,6 +1,10 @@
 """
 __created__ = 2022/11/09
 __author__ = Nick Vazquez (nmv)
+
+The reason for each separate callback method is the updated callback method
+from the class dict won't be updated if just looking up the dict. Without the
+special functions the warning is run even if callback is set.
 """
 import abc
 import logging
@@ -52,9 +56,11 @@ class NavBar(tk.Frame):
         self.draw_navbar()
 
     def start_program(self):
+        """Temp start callback"""
         self.logger.info("STARTING!")
 
     def stop_program(self):
+        """Temp stop callback"""
         self.logger.info("STOPPING!")
 
     def draw_navbar(self):
@@ -111,12 +117,15 @@ class NavSection(ButtonComponent):
         about_button.grid(row=0, column=3)
 
     def home_callback(self):
+        """Callback invoked when home button is pressed"""
         self.callbacks["home"]()
 
     def console_callback(self):
+        """Callback invoked when home button is pressed"""
         self.callbacks["console"]()
 
     def about_callback(self):
+        """Callback invoked when home button is pressed"""
         self.callbacks["about"]()
 
 
