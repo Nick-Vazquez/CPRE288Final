@@ -11,6 +11,8 @@ import logging
 import tkinter as tk
 import typing
 
+from Models.NavBarCallbacks import *
+
 
 class ButtonComponent(abc.ABC, tk.Frame):
     """Component with buttons that have callbacks."""
@@ -42,8 +44,10 @@ class ButtonComponent(abc.ABC, tk.Frame):
 
 class NavBar(tk.Frame):
     """Navigation and application control bar at the top of the app."""
-    def __init__(self, parent, *args, **kwargs):
+    def __init__(self, parent, nav_callbacks: NavBarCallbacks, *args, **kwargs):
         self.logger = logging.getLogger(__name__)
+
+        self._nav_callbacks: NavBarCallbacks = nav_callbacks
 
         styling = {
             "relief": "raised",
@@ -67,37 +71,21 @@ class NavBar(tk.Frame):
         """Populates the self frame with NavBar contents."""
         self.columnconfigure(1, weight=1)
 
-        nav_section = NavSection(self)
-        update_columns = {
-            "home": self.start_program,
-            "console": self.stop_program,
-            "about": self.start_program
-        }
-        nav_section.callbacks.update(**update_columns)
+        nav_section = NavSection(self, self._nav_callbacks.nav_callbacks)
         nav_section.grid(row=0, column=0)
 
-        control_section = ControlSection(self)
-        update_columns = {
-            "start": self.start_program,
-            "stop": self.stop_program,
-            "pause": self.start_program,
-            "reset": self.stop_program,
-            "estop": self.start_program
-        }
-        control_section.callbacks.update(**update_columns)
+        control_section = ControlSection(self,
+                                         self._nav_callbacks.control_callbacks)
         control_section.grid(row=0, column=1, sticky=tk.E)
 
 
 class NavSection(ButtonComponent):
     """Section to switch between pages in the app."""
-    def __init__(self, parent, *args, **kwargs):
+    def __init__(self, parent, nav_callbacks: NavSectionCallbacks,
+                 *args, **kwargs):
         super(NavSection, self).__init__(parent, *args, **kwargs)
 
-        self.callbacks = {
-            "home": self._warn_unimplemented_callback,
-            "console": self._warn_unimplemented_callback,
-            "about": self._warn_unimplemented_callback
-        }
+        self._callbacks: NavSectionCallbacks = nav_callbacks
 
         self.draw()
 
@@ -118,29 +106,24 @@ class NavSection(ButtonComponent):
 
     def home_callback(self):
         """Callback invoked when home button is pressed"""
-        self.callbacks["home"]()
+        self._callbacks.home()
 
     def console_callback(self):
         """Callback invoked when home button is pressed"""
-        self.callbacks["console"]()
+        self._callbacks.console()
 
     def about_callback(self):
         """Callback invoked when home button is pressed"""
-        self.callbacks["about"]()
+        self._callbacks.about()
 
 
 class ControlSection(ButtonComponent):
     """Section for controlling the bot/mission."""
-    def __init__(self, parent, *args, **kwargs):
+    def __init__(self, parent, control_callbacks: ControlSectionCallbacks,
+                 *args, **kwargs):
         super(ControlSection, self).__init__(parent, *args, **kwargs)
 
-        self.callbacks = {
-            "start": self._warn_unimplemented_callback,
-            "stop": self._warn_unimplemented_callback,
-            "pause": self._warn_unimplemented_callback,
-            "reset": self._warn_unimplemented_callback,
-            "estop": self._warn_unimplemented_callback
-        }
+        self._callbacks: ControlSectionCallbacks = control_callbacks
 
         self.draw()
 
@@ -178,21 +161,21 @@ class ControlSection(ButtonComponent):
     def stop_button_callback(self, event):
         """Callback to invoke when the stop button is pressed"""
         self.remove_stop_button(event)
-        self.callbacks["stop"]()
+        self._callbacks.stop()
 
     def start_button_callback(self, event):
         """Callback to invoke when the start button is pressed"""
         self.place_stop_button(event)
-        self.callbacks["start"]()
+        self._callbacks.start()
 
     def reset_button_callback(self):
         """Callback to invoke when the start button is pressed"""
-        self.callbacks["reset"]()
+        self._callbacks.reset()
 
     def pause_button_callback(self):
         """Callback to invoke when the pause button is pressed"""
-        self.callbacks["pause"]()
+        self._callbacks.pause()
 
     def estop_button_callback(self):
         """Callback to invoke when the start button is pressed"""
-        self.callbacks["estop"]()
+        self._callbacks.estop()
