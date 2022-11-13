@@ -1,9 +1,15 @@
 import tkinter.ttk as ttk
 
 
-def _generate_arrow_children(**kwargs):
-    args = {'sticky': 'nswe', 'border': '1', **kwargs}
-    return {'children': [('Button.padding', args)]}
+def _generate_arrow_children(style_name: str, arrow_dir: str):
+    return f'{style_name}.TButton', [
+        ('Button.focus', {'children': [
+            (f'Button.{arrow_dir}', None),
+            ('Button.padding', {'sticky': 'nswe', 'children': [
+                ('Button.label', {'sticky': 'nswe'}
+                 )]}
+             )]}
+         )]
 
 
 class MovementButtons(ttk.Frame):
@@ -17,24 +23,10 @@ class MovementButtons(ttk.Frame):
     def set_style(self):
         style = ttk.Style()
 
-        print(style.element_options('Button.leftarrow'))
-
-        style.configure('Button.leftarrow', arrowsize=200)
-
-        left_arr = {'children': [('Button.leftarrow', None)]}
-        right_arr = {'children': [('Button.rightarrow', None)]}
-        up_arr = {'children': [('Button.uparrow', None)]}
-        down_arr = {'children': [('Button.downarrow', None)]}
-
-        left_arrow = _generate_arrow_children(**left_arr)
-        right_arrow = _generate_arrow_children(**right_arr)
-        up_arrow = _generate_arrow_children(**up_arr)
-        down_arrow = _generate_arrow_children(**down_arr)
-
-        style.layout('Left.TButton', [('Button.focus', left_arrow)])
-        style.layout('Right.TButton', [('Button.focus', right_arrow)])
-        style.layout('Up.TButton', [('Button.focus', up_arrow)])
-        style.layout('Down.TButton', [('Button.focus', down_arrow)])
+        style.layout(*_generate_arrow_children('Left', 'leftarrow'))
+        style.layout(*_generate_arrow_children('Right', 'rightarrow'))
+        style.layout(*_generate_arrow_children('Up', 'uparrow'))
+        style.layout(*_generate_arrow_children('Down', 'downarrow'))
 
     def draw(self):
         left_button = ttk.Button(self, style="Left.TButton", text='')
