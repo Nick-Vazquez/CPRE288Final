@@ -1,7 +1,9 @@
 import logging
-import tkinter
 import tkinter as tk
+import tkinter.ttk as ttk
 import Components.NavBar as NavBar
+import Components.MovementButtons as Buttons
+from Models.MovementCallbacks import MovementCallbacks
 from Models.NavBarCallbacks import *
 
 app_screen_width_pct = 50
@@ -12,6 +14,9 @@ def main():
     logging.basicConfig(level=logging.INFO)
 
     root = tk.Tk()
+    style = ttk.Style(root)
+    style.theme_use('clam')
+
     width = root.winfo_screenwidth() * (app_screen_width_pct / 100)
     height = root.winfo_screenheight() * (app_screen_height_pct / 100)
     root.geometry(f"{int(width)}x{int(height)}")
@@ -25,12 +30,20 @@ def main():
                                                 lambda x=0: print('Stop'),
                                                 lambda x=0: print('Pause'),
                                                 lambda x=0: print('Reset'),
-                                                lambda x=0: print('EStop'))
+                                                lambda x=0: print('EStop'))   
+    movement_callbacks = MovementCallbacks(lambda x=0: print("Forward"),
+                                           lambda x=0: print("Reverse"),
+                                           lambda x=0: print("Left"),
+                                           lambda x=0: print("Right"))
+                                           
     navbar_callbacks = NavBarCallbacks(nav_callbacks, control_callbacks)
     navbar = NavBar.NavBar(window, navbar_callbacks)
     navbar.pack(fill=tkinter.X, expand=True)
+    
+    button = Buttons.MovementButtons(window, movement_callbacks)
+    button.pack()
 
-    window.pack(fill=tkinter.BOTH, expand=True)
+    window.pack(fill=tk.BOTH, expand=True)
     root.mainloop()
 
 
