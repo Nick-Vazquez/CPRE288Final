@@ -1,12 +1,7 @@
 import logging
 import tkinter as tk
 import tkinter.ttk as ttk
-import Components.NavBar as NavBar
-import Components.ScanPlotterView as Plotter
-import Components.MovementButtons as Buttons
-from Models.MovementCallbacks import MovementCallbacks
-import Models.ScanResults as Results
-from Models.NavBarCallbacks import *
+from Components.NumberWidget import NumberWidget
 
 app_screen_width_pct = 50
 app_screen_height_pct = 50
@@ -25,30 +20,8 @@ def main():
 
     window = tk.Frame(root)
 
-    nav_callbacks = NavSectionCallbacks(lambda x=0: print('Home'),
-                                        lambda x=0: print('Console'),
-                                        lambda x=0: print('About'))
-    control_callbacks = ControlSectionCallbacks(lambda x=0: print('Start'),
-                                                lambda x=0: print('Stop'),
-                                                lambda x=0: print('Pause'),
-                                                lambda x=0: print('Reset'),
-                                                lambda x=0: print('EStop'))   
-    movement_callbacks = MovementCallbacks(lambda x=0: print("Forward"),
-                                           lambda x=0: print("Reverse"),
-                                           lambda x=0: print("Left"),
-                                           lambda x=0: print("Right"))
-                                           
-    navbar_callbacks = NavBarCallbacks(nav_callbacks, control_callbacks)
-    navbar = NavBar.NavBar(window, navbar_callbacks)
-    navbar.pack(fill=tkinter.X, expand=True)
-    
-    button = Buttons.MovementButtons(window, movement_callbacks)
-    button.pack()
-
-    scan_result = Results.ScanResult()
-    scan_result.result = [i/2 for i in range(90)]
-    plotter = Plotter.PlotterView(window, scan_result)
-    plotter.pack()
+    number = NumberWidget(window, "Left", tk.IntVar(value=5))
+    number.pack()
 
     window.pack(fill=tk.BOTH, expand=True)
     root.mainloop()
