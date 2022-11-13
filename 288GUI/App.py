@@ -2,8 +2,10 @@ import logging
 import tkinter as tk
 import tkinter.ttk as ttk
 import Components.NavBar as NavBar
+import Components.ScanPlotterView as Plotter
 import Components.MovementButtons as Buttons
 from Models.MovementCallbacks import MovementCallbacks
+import Models.ScanResults as Results
 from Models.NavBarCallbacks import *
 
 app_screen_width_pct = 50
@@ -42,6 +44,11 @@ def main():
     
     button = Buttons.MovementButtons(window, movement_callbacks)
     button.pack()
+
+    scan_result = Results.ScanResult()
+    scan_result.result = [i/2 for i in range(90)]
+    plotter = Plotter.PlotterView(window, scan_result)
+    plotter.pack()
 
     window.pack(fill=tk.BOTH, expand=True)
     root.mainloop()
