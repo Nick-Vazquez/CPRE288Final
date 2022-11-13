@@ -3,6 +3,7 @@ import tkinter as tk
 import tkinter.ttk as ttk
 import Components.NavBar as NavBar
 import Components.MovementButtons as Buttons
+from Models.MovementCallbacks import MovementCallbacks
 
 app_screen_width_pct = 50
 app_screen_height_pct = 50
@@ -24,7 +25,12 @@ def main():
     navbar = NavBar.NavBar(window)
     navbar.pack(fill=tk.X, expand=True)
 
-    button = Buttons.MovementButtons(window)
+    movement_callbacks = MovementCallbacks(lambda x=0: print("Forward"),
+                                           lambda x=0: print("Reverse"),
+                                           lambda x=0: print("Left"),
+                                           lambda x=0: print("Right"))
+
+    button = Buttons.MovementButtons(window, movement_callbacks)
     button.pack()
 
     window.pack(fill=tk.BOTH, expand=True)
