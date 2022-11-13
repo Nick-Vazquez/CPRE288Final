@@ -9,8 +9,8 @@ from Models.MovementCallbacks import MovementCallbacks
 import Models.ScanResults as Results
 from Models.NavBarCallbacks import *
 
-app_screen_width_pct = 50
-app_screen_height_pct = 50
+app_screen_width_pct = 75
+app_screen_height_pct = 75
 
 
 def main():
@@ -51,8 +51,16 @@ def main():
     plotter = Plotter.PlotterView(window, scan_result)
     plotter.pack()
 
-    number = NumberWidget(window, "Left", tk.IntVar(value=5))
-    number.pack()
+    number_frame = tk.Frame(window)
+    number_1 = NumberWidget(number_frame, "Left", tk.IntVar(value=5))
+    number_2 = NumberWidget(number_frame, "Center", tk.IntVar(value=2))
+    number_3 = NumberWidget(number_frame, "Right", tk.IntVar(value=10))
+
+    number_1.grid(row=0, column=0)
+    number_2.grid(row=0, column=1)
+    number_3.grid(row=0, column=2)
+
+    number_frame.pack()
 
     window.pack(fill=tk.BOTH, expand=True)
     root.mainloop()
