@@ -31,6 +31,16 @@ class ScanResult:
         """Sets the result value at a particular angle (index)."""
         self._result[angle] = value
 
+    def set_result_from_angles_distances(self, angles: List[int],
+                                         distances: List[float], step=1):
+        for index, angle in enumerate(angles):
+            if angle % step != 0:
+                # Throw an error if a step is given but
+                raise ArithmeticError('Given angles are not divisible by step!')
+            distance = distances[index]
+            self.result[int(angle / step)] = distance
+            self.logger.debug(f"Setting distance {distance} for angle {angle}.")
+
     def to_dataframe(self) -> pd.DataFrame:
         """Returns the model in a DataFrame format."""
         result_df = pd.DataFrame(columns=["angle", "value"])

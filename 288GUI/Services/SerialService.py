@@ -1,6 +1,9 @@
 import logging
+import queue
 import socket
+import select
 import json
+import threading
 import time
 import traceback
 
@@ -74,6 +77,28 @@ class SerialService:
 
     def get_json(self) -> dict:
         return self.serialize_json(self.get_message())
+
+
+class QueuedSerialService(SerialService):
+    poller: select.poll
+
+    def __init__(self, q: queue.Queue):
+        super(QueuedSerialService, self).__init__()
+        self.q = q
+
+    def establish_socket(self) -> bool:
+        super(QueuedSerialService, self).establish_socket()
+        self.poller = select.poll()
+        self.poller.register(self.connection, select.POLLIN)
+
+    def start_polling(self):
+        evts = self.poller.poll(500)
+        for sock, evt in evts:
+            if evt and select.POLLIN:
+                if sock == self.connection.fileno():
+                    data = self.connection.recv(2048)
+                    self.q.put(data)
+        threading.Timer(10, self.start_polling).start()
 
 
 if __name__ == '__main__':

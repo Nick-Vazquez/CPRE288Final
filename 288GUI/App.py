@@ -1,4 +1,6 @@
 import logging
+import queue
+import threading
 import tkinter as tk
 import tkinter.ttk as ttk
 import Components.NavBar as NavBar
@@ -8,25 +10,13 @@ from Components.NumberWidget import NumberWidget
 from Models.MovementCallbacks import MovementCallbacks
 import Models.ScanResults as Results
 from Models.NavBarCallbacks import *
+from Services.SerialService import QueuedSerialService
 
 app_screen_width_pct = 75
 app_screen_height_pct = 75
 
 
-def main():
-    logging.basicConfig(level=logging.INFO)
-
-    root = tk.Tk()
-    style = ttk.Style(root)
-    style.theme_use('clam')
-
-    width = root.winfo_screenwidth() * (app_screen_width_pct / 100)
-    height = root.winfo_screenheight() * (app_screen_height_pct / 100)
-    root.geometry(f"{int(width)}x{int(height)}")
-    root.title("Parking Buddy")
-
-    window = tk.Frame(root)
-
+def setup_callbacks():
     nav_callbacks = NavSectionCallbacks(lambda x=0: print('Home'),
                                         lambda x=0: print('Console'),
                                         lambda x=0: print('About'))
@@ -41,11 +31,40 @@ def main():
                                            lambda x=0: print("Right"))
 
     navbar_callbacks = NavBarCallbacks(nav_callbacks, control_callbacks)
+
+    return navbar_callbacks, movement_callbacks
+
+
+def threaded_socket_setup(q: queue.Queue):
+    qss = QueuedSerialService(q)
+    if qss.establish_socket():
+        qss.start_polling()
+
+
+def main():
+    logging.basicConfig(level=logging.INFO)
+
+    # Setup window and nav bar
+    root = tk.Tk()
+    style = ttk.Style(root)
+    style.theme_use('clam')
+
+    width = root.winfo_screenwidth() * (app_screen_width_pct / 100)
+    height = root.winfo_screenheight() * (app_screen_height_pct / 100)
+    root.geometry(f"{int(width)}x{int(height)}")
+    root.title("Parking Buddy")
+
+    window = tk.Frame(root)
+
+    navbar_callbacks, movement_callbacks = setup_callbacks()
     navbar = NavBar.NavBar(window, navbar_callbacks)
     navbar.pack(fill=tk.X, expand=True)
-
     button = Buttons.MovementButtons(window, movement_callbacks)
     button.pack()
+
+    q = queue.Queue()
+    x = threading.Thread(target=threaded_socket_setup, args=(q,))
+    x.start()
 
     scan_result = Results.ScanResult()
     scan_result.result = [i / 2 for i in range(90)]
