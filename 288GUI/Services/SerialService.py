@@ -62,8 +62,9 @@ class SerialService:
         as_json = json.dumps(data)
         self.send_str(as_json)
 
+    # TODO: Check to see if this stops at a \0.
     def get_message(self) -> str:
-        data = self.connection.recv(1024)
+        data = self.connection.recv(4096)
         decoded = data.decode('utf-8')
         self.logger.debug(f"Received - {decoded}")
         return decoded
