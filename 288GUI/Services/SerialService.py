@@ -4,6 +4,8 @@ import json
 import time
 import traceback
 
+from Services import CommunicationService
+
 HOST = '192.168.1.1'
 PORT = 288
 
@@ -14,7 +16,7 @@ def set_host_and_port(host: str, port: int):
     PORT = port
 
 
-class SerialService:
+class SerialService(CommunicationService):
     connection_timeout_s: int
     connection: socket.socket
 
@@ -22,7 +24,7 @@ class SerialService:
         self.connection_timeout_s: int = 10
         self.logger = logging.getLogger(str(__class__.__name__))
 
-    def establish_socket(self) -> bool:
+    def establish_connection(self) -> bool:
         self.connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             self.logger.info(f'Attempting to connect... '
@@ -58,29 +60,19 @@ class SerialService:
                                  + traceback.format_exc())
             return 0
 
-    def send_json(self, data: dict):
-        as_json = json.dumps(data)
-        self.send_str(as_json)
-
     # TODO: Check to see if this stops at a \0.
-    def get_message(self) -> str:
+    def get_str(self) -> str:
         data = self.connection.recv(4096)
         decoded = data.decode('utf-8')
         self.logger.debug(f"Received - {decoded}")
-        return decoded
-
-    def serialize_json(self, message: str):
-        return json.loads(message)
-
-    def get_json(self) -> dict:
-        return self.serialize_json(self.get_message())
+        return str(decoded)
 
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     sock = SerialService()
     logging.info('Generated new service.')
-    sock.establish_socket()
+    sock.establish_connection()
     while True:
         try:
             user = input('Enter direction key...')

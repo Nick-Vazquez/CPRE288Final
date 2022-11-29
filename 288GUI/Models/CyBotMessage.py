@@ -41,7 +41,7 @@ class MoveMessage(CyBotMessage):
 
 
 # I hate myself for this
-message_mapping = [CyBotMessage, ScanMessage, MoveMessage]
+message_mapping = [CyBotMessage, ScanMessage, MoveMessage, SoundMessage]
 
 
 if __name__ == '__main__':
