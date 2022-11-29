@@ -23,6 +23,7 @@ def main():
     width = root.winfo_screenwidth() * (app_screen_width_pct / 100)
     height = root.winfo_screenheight() * (app_screen_height_pct / 100)
     root.geometry(f"{int(width)}x{int(height)}")
+    root.title("Parking Buddy")
 
     window = tk.Frame(root)
 
