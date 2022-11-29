@@ -4,22 +4,22 @@ import pydantic
 from pydantic import Field
 
 
-class ScanUpdateType(enum.Enum):
+class ScanUpdateType(str, enum.Enum):
     """Differentiates between update types from distance sensors."""
-    IR = enum.auto()
-    PING = enum.auto()
+    IR = 'IR'
+    PING = 'PING'
 
 
-class MovementDirection(enum.Enum):
+class MovementDirection(str, enum.Enum):
     """Define what direction to move the bot.
 
     FORWARD/REVERSE - CM
     CLOCKWISE/C_CLOCKWISE - DEG
     """
-    FORWARD = enum.auto()
-    REVERSE = enum.auto()
-    CLOCKWISE = enum.auto()
-    C_CLOCKWISE = enum.auto()
+    FORWARD = 'FORWARD'
+    REVERSE = 'REVERSE'
+    CLOCKWISE = 'CLOCKWISE'
+    C_CLOCKWISE = 'C_CLOCKWISE'
 
 
 class CyBotMessage(pydantic.BaseModel):
@@ -40,10 +40,15 @@ class MoveMessage(CyBotMessage):
     magnitude: int
 
 
+class SoundMessage(CyBotMessage):
+    mes_type: int = Field(3, const=True)
+    music_number: int
+
+
 # I hate myself for this
 message_mapping = [CyBotMessage, ScanMessage, MoveMessage]
 
 
 if __name__ == '__main__':
-    message = ScanMessage(update_type=ScanUpdateType.IR, angles=[5, 10])
+    message = ScanMessage(update_type=ScanUpdateType.IR, angles=[5, 10]).json()
     print(message)
