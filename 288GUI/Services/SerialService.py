@@ -9,6 +9,8 @@ from Services import CommunicationService
 HOST = '192.168.1.1'
 PORT = 288
 
+# HOST = "127.0.0.1"
+# PORT = 9998
 
 def set_host_and_port(host: str, port: int):
     global HOST, PORT
@@ -21,12 +23,13 @@ class SerialService(CommunicationService):
     connection: socket.socket
 
     def __init__(self):
-        self.connection_timeout_s: int = 10
+        self.connection_timeout_s: int = 5
         self.logger = logging.getLogger(str(__class__.__name__))
 
     def establish_connection(self) -> bool:
         self.connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
+            # self.connection.bind((HOST, PORT))
             self.logger.info(f'Attempting to connect... '
                              f'({self.connection_timeout_s}s)')
             self.connection.settimeout(self.connection_timeout_s)
@@ -53,7 +56,9 @@ class SerialService(CommunicationService):
         # connection alive for the whole time the instance is alive
         # self.connection.connect((HOST, PORT))
         try:
-            sent_bytes = self.connection.sendall(bytes(data, encoding="utf-8"))
+            # sent_bytes = self.connection.sendall(bytes(data, encoding="utf-8"))
+            sent_bytes = self.connection.sendto(
+                bytes(data, encoding="utf-8"), (HOST, PORT))
             return sent_bytes
         except TimeoutError:
             self.logger.critical("Timeout error when connecting!\n"
@@ -76,10 +81,10 @@ if __name__ == '__main__':
     while True:
         try:
             user = input('Enter direction key...')
-            if user not in ('w', 'a', 's', 'd'):
+            if user not in ('w', 'a', 's', 'd', '+', '-'):
                 logging.warning("Incorrect key pressed!")
                 continue
-            counter = 500
+            counter = 20
             while counter > 0:
                 sent = sock.send_str(user)
                 time.sleep(0.001)
