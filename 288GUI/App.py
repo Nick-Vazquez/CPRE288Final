@@ -1,4 +1,5 @@
 import logging
+import sys
 import tkinter as tk
 import tkinter.ttk as ttk
 import Components.NavBar as NavBar
@@ -8,6 +9,9 @@ from Components.NumberWidget import NumberWidget
 from Models.MovementCallbacks import MovementCallbacks
 import Models.ScanResults as Results
 from Models.NavBarCallbacks import *
+from Services import CommunicationService
+from Services.MovementService import MovementService
+from Services.SerialService import SerialService
 
 app_screen_width_pct = 75
 app_screen_height_pct = 75
@@ -27,18 +31,30 @@ def main():
 
     window = tk.Frame(root)
 
+    serial_service: CommunicationService = SerialService()
+
+    try:
+        serial_service.establish_connection()
+    except ConnectionRefusedError:
+        logging.warning("Could not establish a connection to the CyBot!")
+        sys.exit(1)
+
+    movement_service = MovementService(serial_service)
+
     nav_callbacks = NavSectionCallbacks(lambda x=0: print('Home'),
                                         lambda x=0: print('Console'),
                                         lambda x=0: print('About'))
+
     control_callbacks = ControlSectionCallbacks(lambda x=0: print('Start'),
                                                 lambda x=0: print('Stop'),
                                                 lambda x=0: print('Pause'),
                                                 lambda x=0: print('Reset'),
                                                 lambda x=0: print('EStop'))
-    movement_callbacks = MovementCallbacks(lambda x=0: print("Forward"),
-                                           lambda x=0: print("Reverse"),
-                                           lambda x=0: print("Left"),
-                                           lambda x=0: print("Right"))
+
+    movement_callbacks = MovementCallbacks(movement_service.forward,
+                                           movement_service.reverse,
+                                           movement_service.c_clockwise,
+                                           movement_service.clockwise)
 
     navbar_callbacks = NavBarCallbacks(nav_callbacks, control_callbacks)
     navbar = NavBar.NavBar(window, navbar_callbacks)

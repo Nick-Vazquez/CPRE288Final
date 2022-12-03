@@ -23,6 +23,7 @@ class SerialService(CommunicationService):
     connection: socket.socket
 
     def __init__(self):
+        super().__init__()
         self.connection_timeout_s: int = 5
         self.logger = logging.getLogger(str(__class__.__name__))
 
@@ -35,6 +36,7 @@ class SerialService(CommunicationService):
             self.connection.settimeout(self.connection_timeout_s)
             self.connection.connect((HOST, PORT))
             self.logger.info(f'Connected to {HOST}:{PORT}')
+            self.connected = True
             return True
         except TimeoutError:
             self.logger.critical("Couldn't establish connection! Timed out."
@@ -54,7 +56,7 @@ class SerialService(CommunicationService):
     def send_str(self, data: str):
         # Hopefully we won't need to use connect here and can keep the
         # connection alive for the whole time the instance is alive
-        # self.connection.connect((HOST, PORT))
+        super(SerialService, self).send_str(data)
         try:
             # sent_bytes = self.connection.sendall(bytes(data, encoding="utf-8"))
             sent_bytes = self.connection.sendto(
@@ -67,6 +69,7 @@ class SerialService(CommunicationService):
 
     # TODO: Check to see if this stops at a \0.
     def get_str(self) -> str:
+        super(SerialService, self).get_str()
         data = self.connection.recv(4096)
         decoded = data.decode('utf-8')
         self.logger.debug(f"Received - {decoded}")

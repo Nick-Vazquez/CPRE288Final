@@ -26,10 +26,10 @@ class MovementButtons(ttk.Frame):
         self.draw()
 
     def set_callbacks(self):
-        self.bind_all('w', self.callbacks.forward)
-        self.bind_all('s', self.callbacks.reverse)
-        self.bind_all('a', self.callbacks.left)
-        self.bind_all('d', self.callbacks.right)
+        self.bind_all('w', lambda x: self.callbacks.forward())
+        self.bind_all('s', lambda x: self.callbacks.reverse())
+        self.bind_all('a', lambda x: self.callbacks.c_clockwise())
+        self.bind_all('d', lambda x: self.callbacks.clockwise())
 
     def set_style(self):
         style = ttk.Style()
@@ -41,9 +41,9 @@ class MovementButtons(ttk.Frame):
 
     def draw(self):
         left_button = ttk.Button(self, style="Left.TButton", text='',
-                                 command=self.callbacks.left)
+                                 command=self.callbacks.c_clockwise)
         right_button = ttk.Button(self, style="Right.TButton", text='',
-                                  command=self.callbacks.right)
+                                  command=self.callbacks.clockwise)
         up_button = ttk.Button(self, style="Up.TButton", text='',
                                command=self.callbacks.forward)
         down_button = ttk.Button(self, style="Down.TButton", text='',
