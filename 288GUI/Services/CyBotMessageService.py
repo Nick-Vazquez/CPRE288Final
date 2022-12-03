@@ -11,4 +11,4 @@ class CyBotMessageService:
 
     def send_msg(self, msg: Message.CyBotMessage,
                  comm_srv: CommunicationService):
-        comm_srv.send_json(msg.json())
+        comm_srv.send_dict(msg.json())

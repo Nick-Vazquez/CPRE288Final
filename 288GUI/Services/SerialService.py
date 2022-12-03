@@ -1,16 +1,16 @@
 import logging
 import socket
-import json
 import time
 import traceback
 
 from Services import CommunicationService
 
-HOST = '192.168.1.1'
-PORT = 288
+# HOST = '192.168.1.1'
+# PORT = 288
 
-# HOST = "127.0.0.1"
-# PORT = 9998
+HOST = "127.0.0.1"
+PORT = 65432
+
 
 def set_host_and_port(host: str, port: int):
     global HOST, PORT

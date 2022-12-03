@@ -10,11 +10,11 @@ class TestModes(enum.Enum):
     JSON = enum.auto()
 
 
-TEST_MODE = TestModes.STRING
+TEST_MODE = TestModes.JSON
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
-    sock = SerialService()
+    sock: CommunicationService = SerialService()
     logging.info('Generated new serial service.')
     sock.establish_connection()
     while True:
