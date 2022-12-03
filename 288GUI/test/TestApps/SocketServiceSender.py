@@ -1,7 +1,7 @@
 import logging
 import time
 
-from Models.CyBotMessage import RequestScanMessage
+from Models.CyBotMessage import RequestScanMessage, ScanUpdateType
 from Services import CommunicationService
 from Services.SerialService import SerialService
 
@@ -11,7 +11,7 @@ from Services.SerialService import SerialService
 HOST = "127.0.0.1"
 PORT = 65432
 
-message = RequestScanMessage(full=True)
+message = RequestScanMessage(update_type=ScanUpdateType.PING, full=True)
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)

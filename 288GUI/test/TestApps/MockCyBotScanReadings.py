@@ -9,10 +9,6 @@ HOST = "127.0.0.1"
 PORT = 65432
 
 mock_data = [_ for _ in range(30)]
-message = ScanResultsMessage(
-    update_type=ScanUpdateType.IR, angles=mock_data,
-    distances=[random.randint(1, 30) for _ in range(30)])
-byte_data = message.json().encode()
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.bind((HOST, PORT))
@@ -23,6 +19,10 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             print(f"Connected by {addr}")
             while True:
                 try:
+                    message = ScanResultsMessage(
+                        update_type=ScanUpdateType.IR, angles=mock_data,
+                        distances=[random.randint(1, 30) for _ in range(30)])
+                    byte_data = message.json().encode()
                     conn.sendall(byte_data)
                     print(f"Sent: {byte_data}")
                     time.sleep(3)
