@@ -131,17 +131,8 @@ class ControlSection(ButtonComponent):
         """Draws the application/bot control buttons"""
         start_button = tk.Button(self, text="Start")
         start_button.bind("<Button-1>", self.start_button_callback)
-        pause_button = tk.Button(self, text="Pause",
-                                 command=self.pause_button_callback)
-        reset_button = tk.Button(self, text="Reset Bot",
-                                 command=self.reset_button_callback)
-        estop_button = tk.Button(self, text="Emergency Stop",
-                                 command=self.estop_button_callback)
 
         start_button.grid(row=0, column=0)
-        pause_button.grid(row=0, column=1)
-        reset_button.grid(row=0, column=2)
-        estop_button.grid(row=0, column=3)
 
     def remove_stop_button(self, event):
         """Removes the stop button placed on top of the start button"""
@@ -167,15 +158,3 @@ class ControlSection(ButtonComponent):
         """Callback to invoke when the start button is pressed"""
         self.place_stop_button(event)
         self._callbacks.start()
-
-    def reset_button_callback(self):
-        """Callback to invoke when the start button is pressed"""
-        self._callbacks.reset()
-
-    def pause_button_callback(self):
-        """Callback to invoke when the pause button is pressed"""
-        self._callbacks.pause()
-
-    def estop_button_callback(self):
-        """Callback to invoke when the start button is pressed"""
-        self._callbacks.estop()
