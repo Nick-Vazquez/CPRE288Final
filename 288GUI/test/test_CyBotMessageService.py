@@ -6,7 +6,7 @@ from Models.CyBotMessage import *
 
 class TestCyBotMessageService(TestCase):
     def setUp(self) -> None:
-        self.in_data = dict(mes_type=1, update_type=ScanUpdateType.IR,
+        self.in_data = dict(mes_type=4, update_type=ScanUpdateType.IR,
                        angles=[5, 10], distances=[20, 25])
         self.sut = Service()
 
@@ -16,7 +16,7 @@ class TestCyBotMessageService(TestCase):
 
     def test_translate_is_scan_message(self):
         out = self.sut.translate(self.in_data)
-        self.assertIsInstance(out, ScanMessage)
+        self.assertIsInstance(out, ScanResultsMessage)
 
     def test_translate_not_move_message(self):
         out = self.sut.translate(self.in_data)

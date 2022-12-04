@@ -19,21 +19,3 @@ class TestScanResult(TestCase):
         angles = [1, 3]
         distances = [30, 35]
         return angles, distances
-
-    def test_set_results_from_angles_distances(self):
-        angles, distances = self.setup_result_angles()
-        self.sut.set_result_from_angles_distances(angles, distances)
-        self.assertEqual(self.sut.result, [5, 30, 25, 35])
-
-    def test_set_results_incorrect_dists_throws_arithmetic_exception(self):
-        angles, distances = self.setup_result_angles()
-        with self.assertRaises(ArithmeticError):
-            self.sut.set_result_from_angles_distances(angles, distances, 2)
-
-    def test_set_results_from_angles_distances_step(self):
-        self.sut.result = [2 for _ in range(20)]
-        angles = [9, 18, 27]
-        distances = [1, 1, 1]
-        self.sut.set_result_from_angles_distances(angles, distances, 9)
-        expected = [2, 1, 1, 1] + [2 for _ in range(16)]
-        self.assertEqual(self.sut.result, expected)

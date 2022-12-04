@@ -5,6 +5,7 @@ import Components.NavBar as NavBar
 import Components.ScanPlotterView as Plotter
 import Components.MovementButtons as Buttons
 from Components.BayOccupancyWidget import BayOccupancyWidget
+from Components.Console import ConsoleUi
 from Models.MovementCallbacks import MovementCallbacks
 import Models.ScanResults as Results
 from Models.NavBarCallbacks import *
@@ -12,21 +13,10 @@ from Models.NavBarCallbacks import *
 app_screen_width_pct = 75
 app_screen_height_pct = 75
 
+logger = logging.getLogger()
 
-def main():
-    logging.basicConfig(level=logging.INFO)
 
-    root = tk.Tk()
-    style = ttk.Style(root)
-    style.theme_use('clam')
-
-    width = root.winfo_screenwidth() * (app_screen_width_pct / 100)
-    height = root.winfo_screenheight() * (app_screen_height_pct / 100)
-    root.geometry(f"{int(width)}x{int(height)}")
-    root.title("Parking Buddy")
-
-    window = tk.Frame(root)
-
+def setup_callbacks():
     nav_callbacks = NavSectionCallbacks(lambda x=0: print('Home'),
                                         lambda x=0: print('Console'),
                                         lambda x=0: print('About'))
@@ -41,11 +31,34 @@ def main():
                                            lambda x=0: print("Right"))
 
     navbar_callbacks = NavBarCallbacks(nav_callbacks, control_callbacks)
+
+    return navbar_callbacks, movement_callbacks
+
+
+def main():
+    logging.basicConfig(level=logging.INFO)
+
+    # Setup window and nav bar
+    root = tk.Tk()
+    style = ttk.Style(root)
+    style.theme_use('clam')
+
+    width = root.winfo_screenwidth() * (app_screen_width_pct / 100)
+    height = root.winfo_screenheight() * (app_screen_height_pct / 100)
+    root.geometry(f"{int(width)}x{int(height)}")
+    root.title("Parking Buddy")
+
+    window = tk.Frame(root)
+
+    navbar_callbacks, movement_callbacks = setup_callbacks()
     navbar = NavBar.NavBar(window, navbar_callbacks)
     navbar.pack(fill=tk.X, expand=True)
-
     button = Buttons.MovementButtons(window, movement_callbacks)
     button.pack()
+
+    console = ConsoleUi(window)
+    console.pack()
+    logger.addHandler(console.queue_handler)
 
     scan_result = Results.ScanResult()
     scan_result.result = [i / 2 for i in range(90)]
