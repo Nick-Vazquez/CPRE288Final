@@ -5,23 +5,25 @@ import queue
 import tkinter as tk
 import tkinter.scrolledtext as scrolled
 
-from QueueHandler import QueueHandler
+from Components.Console.QueueHandler import QueueHandler
 
 logger = logging.getLogger(__name__)
 
+UPDATE_TIME_MS = 100
 
-class ConsoleUi:
+
+class ConsoleUi(tk.Frame):
     """Poll messages from a logging queue and display
     them in a scrolled text widget"""
 
-    def __init__(self, frame):
-        self.frame = frame
+    def __init__(self, parent, *args, **kwargs):
+        super(ConsoleUi, self).__init__(parent, *args, **kwargs)
         # Create a ScrolledText widget
-        self.scrolled_text = scrolled.ScrolledText(frame,
+        self.scrolled_text = scrolled.ScrolledText(self,
                                                    state='disabled', height=12)
         self.scrolled_text.grid(row=0, column=0, sticky="nsew")
         self.scrolled_text.configure(font='TkFixedFont')
-        self.scrolled_text.tag_config('INFO', foreground='black')
+        self.scrolled_text.tag_config('INFO', foreground='white')
         self.scrolled_text.tag_config('DEBUG', foreground='gray')
         self.scrolled_text.tag_config('WARNING', foreground='orange')
         self.scrolled_text.tag_config('ERROR', foreground='red')
@@ -30,11 +32,12 @@ class ConsoleUi:
         # Create a logging handler using a queue
         self.log_queue = queue.Queue()
         self.queue_handler = QueueHandler(self.log_queue)
-        formatter = logging.Formatter('%(asctime)s: %(message)s')
+        formatter = logging.Formatter('%(asctime)s - %(levelname)s - '
+                                      '%(name)s: %(message)s')
         self.queue_handler.setFormatter(formatter)
         logger.addHandler(self.queue_handler)
         # Start polling messages from the queue
-        self.frame.after(100, self.poll_log_queue)
+        self.after(UPDATE_TIME_MS, self.poll_log_queue)
 
     def display(self, record):
         msg = self.queue_handler.format(record)
@@ -53,4 +56,4 @@ class ConsoleUi:
                 break
             else:
                 self.display(record)
-        self.frame.after(100, self.poll_log_queue)
+        self.after(UPDATE_TIME_MS, self.poll_log_queue)

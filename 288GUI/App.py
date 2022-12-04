@@ -1,19 +1,19 @@
 import logging
-import queue
-import threading
 import tkinter as tk
 import tkinter.ttk as ttk
 import Components.NavBar as NavBar
 import Components.ScanPlotterView as Plotter
 import Components.MovementButtons as Buttons
 from Components.BayOccupancyWidget import BayOccupancyWidget
+from Components.Console import ConsoleUi
 from Models.MovementCallbacks import MovementCallbacks
 import Models.ScanResults as Results
 from Models.NavBarCallbacks import *
-from Services.SerialService import QueuedSerialService
 
 app_screen_width_pct = 75
 app_screen_height_pct = 75
+
+logger = logging.getLogger()
 
 
 def setup_callbacks():
@@ -33,12 +33,6 @@ def setup_callbacks():
     navbar_callbacks = NavBarCallbacks(nav_callbacks, control_callbacks)
 
     return navbar_callbacks, movement_callbacks
-
-
-def threaded_socket_setup(q: queue.Queue):
-    qss = QueuedSerialService(q)
-    if qss.establish_socket():
-        qss.start_polling()
 
 
 def main():
@@ -62,9 +56,9 @@ def main():
     button = Buttons.MovementButtons(window, movement_callbacks)
     button.pack()
 
-    q = queue.Queue()
-    x = threading.Thread(target=threaded_socket_setup, args=(q,))
-    x.start()
+    console = ConsoleUi(window)
+    console.pack()
+    logger.addHandler(console.queue_handler)
 
     scan_result = Results.ScanResult()
     scan_result.result = [i / 2 for i in range(90)]
