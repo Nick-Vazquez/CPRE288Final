@@ -1,5 +1,6 @@
 import abc
 import json
+import queue
 
 
 class CommunicationService(abc.ABC):
@@ -16,7 +17,7 @@ class CommunicationService(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def start_polling_incoming_messages(self):
+    def start_polling_incoming_messages(self, output_queue: queue.Queue):
         """Infinite loop to poll incoming messages over the communication
         provider."""
         pass

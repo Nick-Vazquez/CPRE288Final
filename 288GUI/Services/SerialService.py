@@ -1,4 +1,5 @@
 import logging
+import queue
 import socket
 import select
 import time
@@ -48,7 +49,7 @@ class SerialService(CommunicationService):
                                  f"Stack: {traceback.format_exc()}")
             return False
 
-    def start_polling_incoming_messages(self):
+    def start_polling_incoming_messages(self, output_queue: queue.Queue):
         """NOTE: This should be run in a separate thread."""
         while 1:
             events = self.poller.poll(5000)
@@ -57,7 +58,8 @@ class SerialService(CommunicationService):
                     if not recv_socket == self.connection.fileno():
                         raise RuntimeError("Received messages from an "
                                            "unexpected socket!")
-                    self.get_str()
+                    recv_json = self.get_json()
+                    output_queue.put(recv_json)
 
     def reconnect(self):
         self.connection.close()

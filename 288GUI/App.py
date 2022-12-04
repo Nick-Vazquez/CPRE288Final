@@ -1,4 +1,5 @@
 import logging
+import queue
 import sys
 import signal
 import threading
@@ -13,6 +14,7 @@ from Models.MovementCallbacks import MovementCallbacks
 import Models.ScanResults as Results
 from Models.NavBarCallbacks import *
 from Services import CommunicationService
+from Services.CyBotMessageService import CyBotMessageService
 from Services.MovementService import MovementService
 from Services.SerialService import SerialService
 
@@ -37,11 +39,15 @@ class App:
         window = tk.Frame(self.root)
 
         self.serial_service: CommunicationService = SerialService()
+        self.incoming_message_queue: queue.Queue = queue.Queue()
+        self.message_service: CyBotMessageService = \
+            CyBotMessageService(self.incoming_message_queue)
 
         try:
             self.serial_service.establish_connection()
             recv_thread = threading.Thread(
-                target=self.serial_service.start_polling_incoming_messages)
+                target=self.serial_service.start_polling_incoming_messages,
+                args=(self.incoming_message_queue,))
             recv_thread.daemon = True
             recv_thread.start()
         except ConnectionRefusedError:
@@ -58,7 +64,7 @@ class App:
         button.pack()
 
         console = ConsoleUi(window)
-        console.pack()
+        console.pack(expand=True, fill=tk.X)
         logger.addHandler(console.queue_handler)
 
         scan_result = Results.ScanResult()
@@ -95,7 +101,7 @@ class App:
 
 
 def main():
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
     logging.getLogger('matplotlib.font_manager').setLevel(logging.ERROR)
     root = tk.Tk()
     app = App(root)
