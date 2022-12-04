@@ -35,15 +35,15 @@ class App:
 
         window = tk.Frame(self.root)
 
-        serial_service: CommunicationService = SerialService()
+        self.serial_service: CommunicationService = SerialService()
 
         try:
-            serial_service.establish_connection()
+            self.serial_service.establish_connection()
         except ConnectionRefusedError:
             logging.warning("Could not establish a connection to the CyBot!")
             sys.exit(1)
 
-        movement_service = MovementService(serial_service)
+        self.movement_service = MovementService(self.serial_service)
 
         navbar_callbacks, movement_callbacks = self.setup_callbacks()
         navbar = NavBar.NavBar(window, navbar_callbacks)
@@ -71,17 +71,15 @@ class App:
         self.root.bind('<Control-q>', self.quit)
         signal.signal(signal.SIGINT, self.quit)
 
-    @staticmethod
-    def setup_callbacks():
+    def setup_callbacks(self):
         nav_callbacks = NavSectionCallbacks(lambda x=0: print('Home'),
                                             lambda x=0: print('Console'),
                                             lambda x=0: print('About'))
         control_callbacks = ControlSectionCallbacks(lambda x=0: print('Start'),
                                                     lambda x=0: print('Stop'))
-        movement_callbacks = MovementCallbacks(lambda x=0: print("Forward"),
-                                               lambda x=0: print("Reverse"),
-                                               lambda x=0: print("Left"),
-                                               lambda x=0: print("Right"))
+        movement_callbacks = MovementCallbacks(
+            self.movement_service.forward, self.movement_service.reverse,
+            self.movement_service.c_clockwise, self.movement_service.clockwise)
 
         navbar_callbacks = NavBarCallbacks(nav_callbacks, control_callbacks)
 
@@ -92,7 +90,8 @@ class App:
 
 
 def main():
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.DEBUG)
+    logging.getLogger('matplotlib.font_manager').setLevel(logging.ERROR)
     root = tk.Tk()
     app = App(root)
     app.root.mainloop()
