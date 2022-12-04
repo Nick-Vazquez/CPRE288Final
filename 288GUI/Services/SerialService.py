@@ -1,14 +1,15 @@
 import logging
-import queue
 import socket
-import select
-import json
-import threading
 import time
 import traceback
 
-HOST = '192.168.1.1'
-PORT = 288
+from Services import CommunicationService
+
+# HOST = '192.168.1.1'
+# PORT = 288
+
+HOST = "127.0.0.1"
+PORT = 65432
 
 
 def set_host_and_port(host: str, port: int):
@@ -17,17 +18,18 @@ def set_host_and_port(host: str, port: int):
     PORT = port
 
 
-class SerialService:
+class SerialService(CommunicationService):
     connection_timeout_s: int
     connection: socket.socket
 
     def __init__(self):
-        self.connection_timeout_s: int = 10
+        self.connection_timeout_s: int = 5
         self.logger = logging.getLogger(str(__class__.__name__))
 
-    def establish_socket(self) -> bool:
+    def establish_connection(self) -> bool:
         self.connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
+            # self.connection.bind((HOST, PORT))
             self.logger.info(f'Attempting to connect... '
                              f'({self.connection_timeout_s}s)')
             self.connection.settimeout(self.connection_timeout_s)
@@ -54,65 +56,35 @@ class SerialService:
         # connection alive for the whole time the instance is alive
         # self.connection.connect((HOST, PORT))
         try:
-            sent_bytes = self.connection.sendall(bytes(data, encoding="utf-8"))
+            # sent_bytes = self.connection.sendall(bytes(data, encoding="utf-8"))
+            sent_bytes = self.connection.sendto(
+                bytes(data, encoding="utf-8"), (HOST, PORT))
             return sent_bytes
         except TimeoutError:
             self.logger.critical("Timeout error when connecting!\n"
                                  + traceback.format_exc())
             return 0
 
-    def send_json(self, data: dict):
-        as_json = json.dumps(data)
-        self.send_str(as_json)
-
     # TODO: Check to see if this stops at a \0.
-    def get_message(self) -> str:
+    def get_str(self) -> str:
         data = self.connection.recv(4096)
         decoded = data.decode('utf-8')
         self.logger.debug(f"Received - {decoded}")
-        return decoded
-
-    def serialize_json(self, message: str):
-        return json.loads(message)
-
-    def get_json(self) -> dict:
-        return self.serialize_json(self.get_message())
-
-
-class QueuedSerialService(SerialService):
-    poller: select.poll
-
-    def __init__(self, q: queue.Queue):
-        super(QueuedSerialService, self).__init__()
-        self.q = q
-
-    def establish_socket(self) -> bool:
-        super(QueuedSerialService, self).establish_socket()
-        self.poller = select.poll()
-        self.poller.register(self.connection, select.POLLIN)
-
-    def start_polling(self):
-        evts = self.poller.poll(500)
-        for sock, evt in evts:
-            if evt and select.POLLIN:
-                if sock == self.connection.fileno():
-                    data = self.connection.recv(2048)
-                    self.q.put(data)
-        threading.Timer(10, self.start_polling).start()
+        return str(decoded)
 
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     sock = SerialService()
     logging.info('Generated new service.')
-    sock.establish_socket()
+    sock.establish_connection()
     while True:
         try:
             user = input('Enter direction key...')
-            if user not in ('w', 'a', 's', 'd'):
+            if user not in ('w', 'a', 's', 'd', '+', '-'):
                 logging.warning("Incorrect key pressed!")
                 continue
-            counter = 500
+            counter = 20
             while counter > 0:
                 sent = sock.send_str(user)
                 time.sleep(0.001)

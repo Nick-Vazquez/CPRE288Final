@@ -1,3 +1,4 @@
+import json
 from unittest import TestCase
 from Services.CyBotMessageService import CyBotMessageService as Service
 from Models.CyBotMessage import *
@@ -20,3 +21,6 @@ class TestCyBotMessageService(TestCase):
     def test_translate_not_move_message(self):
         out = self.sut.translate(self.in_data)
         self.assertNotIsInstance(out, MoveMessage)
+
+    def test_from_json(self):
+        print(json.dumps(self.in_data))

@@ -6,7 +6,7 @@ import tkinter.ttk as ttk
 import Components.NavBar as NavBar
 import Components.ScanPlotterView as Plotter
 import Components.MovementButtons as Buttons
-from Components.NumberWidget import NumberWidget
+from Components.BayOccupancyWidget import BayOccupancyWidget
 from Models.MovementCallbacks import MovementCallbacks
 import Models.ScanResults as Results
 from Models.NavBarCallbacks import *
@@ -71,16 +71,9 @@ def main():
     plotter = Plotter.PlotterView(window, scan_result)
     plotter.pack()
 
-    number_frame = tk.Frame(window)
-    number_1 = NumberWidget(number_frame, "Left", tk.IntVar(value=5))
-    number_2 = NumberWidget(number_frame, "Center", tk.IntVar(value=2))
-    number_3 = NumberWidget(number_frame, "Right", tk.IntVar(value=10))
-
-    number_1.grid(row=0, column=0)
-    number_2.grid(row=0, column=1)
-    number_3.grid(row=0, column=2)
-
-    number_frame.pack()
+    occupancy_widget = BayOccupancyWidget(window)
+    occupancy_widget.occupancies = [3, 4, 5, 6]
+    occupancy_widget.pack()
 
     window.pack(fill=tk.BOTH, expand=True)
     root.mainloop()
