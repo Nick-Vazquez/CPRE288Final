@@ -1,5 +1,6 @@
 import logging
 import socket
+import select
 import time
 import traceback
 
@@ -21,6 +22,7 @@ def set_host_and_port(host: str, port: int):
 class SerialService(CommunicationService):
     connection_timeout_s: int
     connection: socket.socket
+    poller: select.poll
 
     def __init__(self):
         super().__init__()
@@ -37,11 +39,25 @@ class SerialService(CommunicationService):
             self.connection.connect((HOST, PORT))
             self.logger.info(f'Connected to {HOST}:{PORT}')
             self.connected = True
+
+            self.poller = select.poll()
+            self.poller.register(self.connection, select.POLLIN)
             return True
         except TimeoutError:
             self.logger.critical("Couldn't establish connection! Timed out."
                                  f"Stack: {traceback.format_exc()}")
             return False
+
+    def start_polling_incoming_messages(self):
+        """NOTE: This should be run in a separate thread."""
+        while 1:
+            events = self.poller.poll(5000)
+            for recv_socket, event in events:
+                if event and select.POLLIN:
+                    if not recv_socket == self.connection.fileno():
+                        raise RuntimeError("Received messages from an "
+                                           "unexpected socket!")
+                    self.get_str()
 
     def reconnect(self):
         self.connection.close()
@@ -58,7 +74,6 @@ class SerialService(CommunicationService):
         # connection alive for the whole time the instance is alive
         super(SerialService, self).send_str(data)
         try:
-            # sent_bytes = self.connection.sendall(bytes(data, encoding="utf-8"))
             sent_bytes = self.connection.sendto(
                 bytes(data, encoding="utf-8"), (HOST, PORT))
             return sent_bytes

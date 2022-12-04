@@ -1,6 +1,7 @@
 import logging
 import sys
 import signal
+import threading
 import tkinter as tk
 import tkinter.ttk as ttk
 import Components.NavBar as NavBar
@@ -39,6 +40,10 @@ class App:
 
         try:
             self.serial_service.establish_connection()
+            recv_thread = threading.Thread(
+                target=self.serial_service.start_polling_incoming_messages)
+            recv_thread.daemon = True
+            recv_thread.start()
         except ConnectionRefusedError:
             logging.warning("Could not establish a connection to the CyBot!")
             sys.exit(1)

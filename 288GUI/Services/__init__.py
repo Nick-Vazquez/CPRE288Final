@@ -16,6 +16,12 @@ class CommunicationService(abc.ABC):
         pass
 
     @abc.abstractmethod
+    def start_polling_incoming_messages(self):
+        """Infinite loop to poll incoming messages over the communication
+        provider."""
+        pass
+
+    @abc.abstractmethod
     def reconnect(self):
         """Reconnects to the communication provider.
         Used for cases where connections hang."""
