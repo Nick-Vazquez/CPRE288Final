@@ -8,11 +8,11 @@ class TestScanMessage(TestCase):
     def setUp(self) -> None:
         self.in_data = dict(update_type=Message.ScanUpdateType.IR,
                             angles=[120], distances=[59.5])
-        self.model = Models.CyBotMessage.ScanMessage(**self.in_data)
+        self.model = Models.CyBotMessage.ScanResultsMessage(**self.in_data)
 
     def test_msg_type(self):
         # Assert
-        self.assertEqual(self.model.mes_type, 1)
+        self.assertEqual(self.model.mes_type, 4)
 
     def test_update_type(self):
         self.assertEqual(self.model.update_type,

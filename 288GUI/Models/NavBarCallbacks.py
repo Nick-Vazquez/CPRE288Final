@@ -35,17 +35,10 @@ class NavSectionCallbacks:
 class ControlSectionCallbacks:
     _start: Callable[..., Any]
     _stop: Callable[..., Any]
-    _pause: Callable[..., Any]
-    _reset: Callable[..., Any]
-    _estop: Callable[..., Any]
 
-    def __init__(self, start: Callable, stop: Callable, pause: Callable,
-                 reset: Callable, estop: Callable):
+    def __init__(self, start: Callable, stop: Callable):
         self._start = start
         self._stop = stop
-        self._pause = pause
-        self._reset = reset
-        self._estop = estop
 
     @property
     def start(self):
@@ -62,30 +55,6 @@ class ControlSectionCallbacks:
     @stop.setter
     def stop(self, value: Callable):
         self._stop = value
-
-    @property
-    def pause(self):
-        return self._pause
-
-    @pause.setter
-    def pause(self, value: Callable):
-        self._pause = value
-
-    @property
-    def reset(self):
-        return self._reset
-
-    @reset.setter
-    def reset(self, value: Callable):
-        self._reset = value
-
-    @property
-    def estop(self):
-        return self._estop
-
-    @estop.setter
-    def estop(self, value: Callable):
-        self._estop = value
 
 
 class NavBarCallbacks:
