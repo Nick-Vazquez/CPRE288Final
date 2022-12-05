@@ -25,10 +25,11 @@ class SerialService(CommunicationService):
     connection: socket.socket
     poller: select.poll
 
-    def __init__(self):
+    def __init__(self, master):
         super().__init__()
         self.connection_timeout_s: int = 5
         self.logger = logging.getLogger(str(__class__.__name__))
+        self.master = master
 
     def establish_connection(self) -> bool:
         self.connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -49,17 +50,17 @@ class SerialService(CommunicationService):
                                  f"Stack: {traceback.format_exc()}")
             return False
 
-    def start_polling_incoming_messages(self, output_queue: queue.Queue):
+    def poll_incoming_messages(self, output_queue: queue.Queue):
         """NOTE: This should be run in a separate thread."""
-        while 1:
-            events = self.poller.poll(5000)
-            for recv_socket, event in events:
-                if event and select.POLLIN:
-                    if not recv_socket == self.connection.fileno():
-                        raise RuntimeError("Received messages from an "
-                                           "unexpected socket!")
-                    recv_json = self.get_json()
-                    output_queue.put(recv_json)
+        events = self.poller.poll(5000)
+        for recv_socket, event in events:
+            if event and select.POLLIN:
+                if not recv_socket == self.connection.fileno():
+                    raise RuntimeError("Received messages from an "
+                                       "unexpected socket!")
+                recv_json = self.get_json()
+                output_queue.put(recv_json)
+        self.master.after(100, self.poll_incoming_messages, output_queue)
 
     def reconnect(self):
         self.connection.close()

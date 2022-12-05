@@ -1,19 +1,90 @@
+import abc
 import logging
 import queue
-import threading
+import typing
 
 import Models.CyBotMessage as Message
 
 from Services import CommunicationService
 
+logger = logging.getLogger(__name__)
 
-class CyBotMessageService:
-    def __init__(self, input_q: queue.Queue):
+
+class _AbstractSubscriber(abc.ABC):
+    @property
+    @abc.abstractmethod
+    def accepts(self):
+        pass
+
+    @accepts.setter
+    @abc.abstractmethod
+    def accepts(self, value: type):
+        pass
+
+    @property
+    @abc.abstractmethod
+    def input_queue(self):
+        pass
+
+    @abc.abstractmethod
+    def poll_input_queue(self):
+        pass
+
+
+class Subscriber(_AbstractSubscriber):
+    _input_queue: queue.Queue
+
+    def __init__(self):
+        self._input_queue = queue.Queue()
+        self._accepts: type = Message.CyBotMessage
+
+    @property
+    def accepts(self):
+        return self._accepts
+
+    @accepts.setter
+    def accepts(self, value: type):
+        if not isinstance(value, type):
+            raise ValueError("Incorrect accepts type passed."
+                             "Needs to be a type!")
+        self._accepts = value
+
+    @property
+    def input_queue(self):
+        """Queue that receives subscriber messages."""
+        return self._input_queue
+
+
+class Publisher:
+    def __init__(self):
+        self.subscribers: typing.List[Subscriber] = []
+
+    def subscribe(self, subscriber: Subscriber):
+        if not isinstance(subscriber, Subscriber):
+            raise ValueError("Cannot subscribe a non-subscriber object!")
+        self.subscribers.append(subscriber)
+
+    def unsubscribe(self, subscriber: Subscriber):
+        if subscriber in self.subscribers:
+            self.subscribers.remove(subscriber)
+        else:
+            logger.warning("Tried to remove a non-subscriber from "
+                           "subscriptions!")
+
+    def publish(self, message):
+        for subscriber in self.subscribers:
+            if not isinstance(message, subscriber.accepts):
+                # Skip the subscriber if it doesn't accept the type of message.
+                continue
+            subscriber.input_queue.put(message)
+
+
+class CyBotMessageService(Publisher):
+    def __init__(self, input_q: queue.Queue, master):
+        super().__init__()
         self.logger = logging.getLogger(__class__.__name__)
-        poller = threading.Thread(target=self.translate_print_recv_messages,
-                                  args=(input_q,))
-        poller.daemon = True
-        poller.start()
+        self.input_q = input_q
+        self.master = master
 
     @staticmethod
     def translate(message_input: dict) -> Message.CyBotMessage:
@@ -24,11 +95,12 @@ class CyBotMessageService:
                  comm_srv: CommunicationService):
         comm_srv.send_dict(msg.__dict__)
 
-    def translate_print_recv_messages(self, input_q: queue.Queue):
-        while True:
-            try:
-                msg = input_q.get()
-                translated = self.translate(msg)
-                self.logger.info(translated.json())
-            except queue.Empty:
-                pass
+    def translate_recv_messages(self):
+        try:
+            msg = self.input_q.get_nowait()
+            translated: Message.CyBotMessage = self.translate(msg)
+            self.publish(translated)
+            self.logger.debug(translated.json())
+        except queue.Empty:
+            pass
+        self.master.after(100, self.translate_recv_messages)
