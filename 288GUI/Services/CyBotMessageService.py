@@ -109,7 +109,6 @@ class CyBotMessageService(Publisher):
                 if not msg:
                     continue
                 translated = self.translate(msg)
-                self.logger.info(translated.json())
                 self.publish(translated)
             except queue.Empty:
                 pass

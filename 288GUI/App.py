@@ -10,7 +10,6 @@ import Components.NavBar as NavBar
 import Components.MovementButtons as Buttons
 from Components.BayOccupancyWidget import BayOccupancyWidget
 from Components.Console.ConsoleUI import ConsoleUi
-from Components.Console.ConsoleUI import ConsoleUi
 
 from Controllers.PlotterController import PlotterController
 

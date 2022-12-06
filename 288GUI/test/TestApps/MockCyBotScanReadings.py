@@ -25,7 +25,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                     byte_data = message.json().encode()
                     conn.sendall(byte_data)
                     print(f"Sent: {byte_data}")
-                    time.sleep(0.25)
+                    time.sleep(3)
                 except BrokenPipeError as e:
                     print("Broken pipe... Resetting.")
                     break

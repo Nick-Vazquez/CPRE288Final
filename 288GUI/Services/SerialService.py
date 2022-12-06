@@ -58,7 +58,7 @@ class SerialService(CommunicationService):
 
     def start_polling_incoming_messages(self, output_queue: queue.Queue):
         """NOTE: This should be run in a separate thread."""
-        while 1:
+        while True:
             events = self.poller.poll(5000)
             for recv_socket, event in events:
                 if event and select.POLLIN:
