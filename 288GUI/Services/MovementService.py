@@ -4,8 +4,8 @@ from Services import CommunicationService
 from Models.CyBotMessage import MoveMessage, MovementDirection
 
 
-DEFAULT_TRANSLATION_MAGNITUDE_IN = 5
-DEFAULT_ROTATION_MAGNITUDE_DEG = 5
+DEFAULT_TRANSLATION_MAGNITUDE_IN = 100
+DEFAULT_ROTATION_MAGNITUDE_DEG = 20
 
 logger = logging.getLogger(__name__)
 
