@@ -10,6 +10,7 @@ import Components.NavBar as NavBar
 import Components.MovementButtons as Buttons
 from Components.BayOccupancyWidget import BayOccupancyWidget
 from Components.Console.ConsoleUI import ConsoleUi
+from Controllers.NavBarController import NavBarController
 
 from Controllers.PlotterController import PlotterController
 
@@ -19,6 +20,7 @@ from Models.NavBarCallbacks import *
 from Services import CommunicationService
 from Services.CyBotMessageService import CyBotMessageService
 from Services.MovementService import MovementService
+from Services.OpModeService import OpModeService
 from Services.SerialService import SerialService
 
 app_screen_width_pct = 75
@@ -63,10 +65,15 @@ class App:
         self.root.after(0, self.message_service.start)
 
         self.movement_service = MovementService(self.serial_service)
+        self.opmode_service = OpModeService(self.serial_service)
 
-        navbar_callbacks, movement_callbacks = self.setup_callbacks()
-        navbar = NavBar.NavBar(window, navbar_callbacks)
-        navbar.pack(fill=tk.X, expand=True)
+        movement_callbacks = MovementCallbacks(
+            self.movement_service.forward, self.movement_service.reverse,
+            self.movement_service.c_clockwise,
+            self.movement_service.clockwise)
+
+        navbar = NavBarController(window, self.opmode_service)
+        navbar.view.pack(fill=tk.X, expand=True)
 
         button = Buttons.MovementButtons(window, movement_callbacks)
         button.pack()
@@ -90,26 +97,12 @@ class App:
         self.root.bind('<Control-q>', self.quit)
         signal.signal(signal.SIGINT, self.quit)
 
-    def setup_callbacks(self):
-        nav_callbacks = NavSectionCallbacks(lambda x=0: print('Home'),
-                                            lambda x=0: print('Console'),
-                                            lambda x=0: print('About'))
-        control_callbacks = ControlSectionCallbacks(lambda x=0: print('Start'),
-                                                    lambda x=0: print('Stop'))
-        movement_callbacks = MovementCallbacks(
-            self.movement_service.forward, self.movement_service.reverse,
-            self.movement_service.c_clockwise, self.movement_service.clockwise)
-
-        navbar_callbacks = NavBarCallbacks(nav_callbacks, control_callbacks)
-
-        return navbar_callbacks, movement_callbacks
-
     def quit(self, *args):
         self.root.destroy()
 
 
 def main():
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.DEBUG)
     logging.getLogger('matplotlib.font_manager').setLevel(logging.ERROR)
     root = tk.Tk()
     app = App(root)

@@ -74,9 +74,13 @@ class NavBar(tk.Frame):
         nav_section = NavSection(self, self._nav_callbacks.nav_callbacks)
         nav_section.grid(row=0, column=0)
 
+        opmode_section = OpModeSelector(self,
+                                        self._nav_callbacks.opmode_callbacks)
+        opmode_section.grid(row=0, column=1)
+
         control_section = ControlSection(self,
                                          self._nav_callbacks.control_callbacks)
-        control_section.grid(row=0, column=1, sticky=tk.E)
+        control_section.grid(row=0, column=2, sticky=tk.E)
 
 
 class NavSection(ButtonComponent):
@@ -115,6 +119,21 @@ class NavSection(ButtonComponent):
     def about_callback(self):
         """Callback invoked when home button is pressed"""
         self._callbacks.about()
+
+
+class OpModeSelector(ButtonComponent):
+    def __init__(self, parent, callbacks: OpModeCallbacks,
+                 *args, **kwargs):
+        super(OpModeSelector, self).__init__(parent, *args, **kwargs)
+        self._callbacks: OpModeCallbacks = callbacks
+        self.draw()
+
+    def draw(self):
+        teleop = tk.Button(self, text="TeleOp", command=self._callbacks.teleop)
+        auto = tk.Button(self, text="Autonomous", command=self._callbacks.auto)
+
+        teleop.grid(row=0, column=0)
+        auto.grid(row=0, column=1)
 
 
 class ControlSection(ButtonComponent):

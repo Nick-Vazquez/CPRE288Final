@@ -80,6 +80,8 @@ class SerialService(CommunicationService):
                     pass
             if message_buffer != '':
                 top_message = re.match('{(.*?)}', message_buffer)
+                if not top_message:
+                    continue
                 message_buffer = re.sub('{(.*?)}', '', message_buffer)
                 loaded = json.loads(top_message.group(0))
                 output_queue.put(loaded)

@@ -1,6 +1,10 @@
 import enum
 import logging
+import queue
+import sys
+import threading
 
+from Models.CyBotMessage import CyBotMessage
 from Services import CommunicationService
 from Services.CyBotMessageService import CyBotMessageService
 from Services.SerialService import SerialService
@@ -16,20 +20,29 @@ TEST_MODE = TestModes.JSON
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     sock: CommunicationService = SerialService()
-    message: CyBotMessageService = CyBotMessageService()
-    logging.info('Generated new serial service.')
-    sock.establish_connection()
+    incoming_message_queue: queue.Queue = queue.Queue()
+
+    try:
+        logging.info('Generated new serial service.')
+        sock.establish_connection()
+        threading.Thread(target=sock.setup_poll,
+                         args=(incoming_message_queue,),
+                         daemon=True).start()
+        logging.info('Connection established!')
+    except ConnectionRefusedError:
+        logging.warning("Could not establish a connection to the CyBot!")
+        sys.exit(1)
+
+    message: CyBotMessageService = CyBotMessageService(incoming_message_queue)
+    threading.Thread(target=message.start)
+
     while True:
         try:
-            if TEST_MODE == TestModes.STRING:
-                msg = sock.get_str()
-                output = msg
-            elif TEST_MODE == TestModes.JSON:
-                msg = sock.get_json()
-                output = message.translate(msg)
-            else:
-                raise AttributeError("Test mode couldn't be determined!")
-            print(output)
+            try:
+                msg: CyBotMessage = incoming_message_queue.get_nowait()
+                print(msg)
+            except queue.Empty:
+                pass
         except TimeoutError:
             print("No message.")
         except KeyboardInterrupt:

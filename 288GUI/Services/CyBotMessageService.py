@@ -96,6 +96,10 @@ class CyBotMessageService(Publisher):
     @staticmethod
     def translate(message_input: dict) -> Message.CyBotMessage:
         cls = Message.message_mapping[message_input.get("mes_type")]
+        if cls == Message.ScanResultsMessage:
+            message_input['mes_type'] = int(message_input.get('mes_type'))
+            message_input['angles'] = [int(val) for val in message_input.get(
+                'angles')]
         return cls(**message_input)
 
     def send_msg(self, msg: Message.CyBotMessage,
@@ -112,3 +116,5 @@ class CyBotMessageService(Publisher):
                 self.publish(translated)
             except queue.Empty:
                 pass
+            except Exception as e:
+                logger.warning(f"Caught an error! {e}")
