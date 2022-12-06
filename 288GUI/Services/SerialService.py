@@ -14,7 +14,7 @@ from Services import CommunicationService
 # PORT = 288
 
 HOST = "127.0.0.1"
-PORT = 65432
+PORT = 65433
 
 
 def set_host_and_port(host: str, port: int):
@@ -79,8 +79,12 @@ class SerialService(CommunicationService):
                 except queue.Empty:
                     pass
             if message_buffer != '':
+                if not message_buffer.startswith("{"):
+                    logging.warning("Bad message buffer!")
+                    message_buffer = message_buffer[message_buffer.find('{'):]
                 top_message = re.match('{(.*?)}', message_buffer)
                 if not top_message:
+                    logging.warning("Invalid message found.")
                     continue
                 message_buffer = re.sub('{(.*?)}', '', message_buffer)
                 loaded = json.loads(top_message.group(0))

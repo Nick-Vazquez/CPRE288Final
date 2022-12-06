@@ -6,16 +6,15 @@ import signal
 import tkinter as tk
 import tkinter.ttk as ttk
 
-import Components.NavBar as NavBar
 import Components.MovementButtons as Buttons
 from Components.BayOccupancyWidget import BayOccupancyWidget
 from Components.Console.ConsoleUI import ConsoleUi
+from Controllers.BayController import BayController
 from Controllers.NavBarController import NavBarController
 
 from Controllers.PlotterController import PlotterController
 
 from Models.MovementCallbacks import MovementCallbacks
-from Models.NavBarCallbacks import *
 
 from Services import CommunicationService
 from Services.CyBotMessageService import CyBotMessageService
@@ -23,8 +22,8 @@ from Services.MovementService import MovementService
 from Services.OpModeService import OpModeService
 from Services.SerialService import SerialService
 
-app_screen_width_pct = 75
-app_screen_height_pct = 75
+app_screen_width_pct = 100
+app_screen_height_pct = 100
 
 logger = logging.getLogger()
 
@@ -73,23 +72,22 @@ class App:
             self.movement_service.clockwise)
 
         navbar = NavBarController(window, self.opmode_service)
-        navbar.view.pack(fill=tk.X, expand=True)
-
         button = Buttons.MovementButtons(window, movement_callbacks)
-        button.pack()
-
-        console.pack(expand=True, fill=tk.X)
 
         # Create plotter and subscribe it to incoming messages.
         scan_plotter = PlotterController(window)
-        scan_plotter.view.pack()
         scan_plotter.ir_results.result = \
             [random.randint(1, 5) for _ in range(90)]
         self.message_service.subscribe(scan_plotter)
 
-        occupancy_widget = BayOccupancyWidget(window)
-        occupancy_widget.occupancies = [3, 4, 5, 6]
-        occupancy_widget.pack()
+        occupancy_controller = BayController(window)
+        self.message_service.subscribe(occupancy_controller)
+
+        navbar.view.grid(row=0, column=0, columnspan=2, sticky="nsew")
+        scan_plotter.view.grid(row=1, column=0, sticky="nsew")
+        button.grid(row=1, column=1, sticky="nsew")
+        occupancy_controller.view.grid(row=2, column=0, sticky="nsew")
+        console.grid(row=3, column=0, columnspan=2, sticky="nsew")
 
         window.pack(fill=tk.BOTH, expand=True)
 

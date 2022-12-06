@@ -3,12 +3,10 @@ import random
 import socket
 import time
 
-from Models.CyBotMessage import ScanResultsMessage, ScanUpdateType
+from Models.CyBotMessage import BayResultsMessage
 
 HOST = "127.0.0.1"
 PORT = 65433
-
-mock_data = [_ for _ in range(90)]
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.bind((HOST, PORT))
@@ -19,9 +17,10 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             print(f"Connected by {addr}")
             while True:
                 try:
-                    message = ScanResultsMessage(
-                        update_type=ScanUpdateType.IR, angles=mock_data,
-                        distances=[random.randint(25, 30) for _ in range(90)])
+                    bay = random.randint(1, 4)
+                    occ = random.randint(0, 10)
+                    message = BayResultsMessage(bay_num=bay, occupancy=occ,
+                                                closed=False)
                     byte_data = message.json().encode()
                     conn.sendall(byte_data)
                     print(f"Sent: {byte_data}")
