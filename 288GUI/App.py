@@ -1,20 +1,22 @@
 import logging
 import queue
+import random
 import sys
 import signal
-import threading
 import tkinter as tk
 import tkinter.ttk as ttk
-import typing
 
 import Components.NavBar as NavBar
-import Components.ScanPlotterView as Plotter
 import Components.MovementButtons as Buttons
 from Components.BayOccupancyWidget import BayOccupancyWidget
 from Components.Console.ConsoleUI import ConsoleUi
+from Components.Console.ConsoleUI import ConsoleUi
+
+from Controllers.PlotterController import PlotterController
+
 from Models.MovementCallbacks import MovementCallbacks
-import Models.ScanResults as Results
 from Models.NavBarCallbacks import *
+
 from Services import CommunicationService
 from Services.CyBotMessageService import CyBotMessageService
 from Services.MovementService import MovementService
@@ -24,6 +26,8 @@ app_screen_width_pct = 75
 app_screen_height_pct = 75
 
 logger = logging.getLogger()
+
+MESSAGE_UPDATE_TIME_MS = 100
 
 
 class App:
@@ -70,10 +74,12 @@ class App:
 
         console.pack(expand=True, fill=tk.X)
 
-        scan_result = Results.ScanResult()
-        scan_result.result = [i / 2 for i in range(90)]
-        plotter = Plotter.PlotterView(window, scan_result)
-        plotter.pack()
+        # Create plotter and subscribe it to incoming messages.
+        scan_plotter = PlotterController(window)
+        scan_plotter.view.pack()
+        scan_plotter.ir_results.result = \
+            [random.randint(1, 5) for _ in range(90)]
+        self.message_service.subscribe(scan_plotter)
 
         occupancy_widget = BayOccupancyWidget(window)
         occupancy_widget.occupancies = [3, 4, 5, 6]

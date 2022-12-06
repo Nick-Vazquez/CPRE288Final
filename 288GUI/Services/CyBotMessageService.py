@@ -8,7 +8,6 @@ import Models.CyBotMessage as Message
 
 from Services import CommunicationService
 
-
 logger = logging.getLogger(__name__)
 
 
