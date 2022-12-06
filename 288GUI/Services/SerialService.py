@@ -81,7 +81,8 @@ class SerialService(CommunicationService):
             if message_buffer != '':
                 top_message = re.match('{(.*?)}', message_buffer)
                 message_buffer = re.sub('{(.*?)}', '', message_buffer)
-                output_queue.put(top_message.group(0))
+                loaded = json.loads(top_message.group(0))
+                output_queue.put(loaded)
 
     def reconnect(self):
         self.connection.close()

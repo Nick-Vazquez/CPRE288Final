@@ -26,12 +26,6 @@ app_screen_height_pct = 75
 logger = logging.getLogger()
 
 
-def print_queue(queue1, root):
-    if not queue1.empty():
-        print(queue1.get_nowait())
-    root.after(100, print_queue, queue1, root)
-
-
 class App:
     def __init__(self, root: tk.Tk):
         # Setup window and nav bar
@@ -46,6 +40,9 @@ class App:
 
         window = tk.Frame(self.root)
 
+        console = ConsoleUi(window)
+        logger.addHandler(console.queue_handler)
+
         self.serial_service: CommunicationService = SerialService()
         self.incoming_message_queue: queue.Queue = queue.Queue()
 
@@ -58,11 +55,9 @@ class App:
             self.root.destroy()
             sys.exit(1)
 
-        print_queue(self.incoming_message_queue, self.root)
-
-        # self.message_service: CyBotMessageService = \
-        #     CyBotMessageService(self.incoming_message_queue)
-        # self.root.after(0, self.message_service.start)
+        self.message_service: CyBotMessageService = \
+            CyBotMessageService(self.incoming_message_queue)
+        self.root.after(0, self.message_service.start)
 
         self.movement_service = MovementService(self.serial_service)
 
@@ -73,9 +68,7 @@ class App:
         button = Buttons.MovementButtons(window, movement_callbacks)
         button.pack()
 
-        console = ConsoleUi(window)
         console.pack(expand=True, fill=tk.X)
-        logger.addHandler(console.queue_handler)
 
         scan_result = Results.ScanResult()
         scan_result.result = [i / 2 for i in range(90)]
