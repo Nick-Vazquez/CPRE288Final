@@ -1,9 +1,12 @@
+import json
 import logging
 import queue
 import socket
 import select
+import threading
 import time
 import traceback
+import re
 
 from Services import CommunicationService
 
@@ -20,6 +23,10 @@ def set_host_and_port(host: str, port: int):
     PORT = port
 
 
+def start_thread(function, *args):
+    threading.Thread(target=function, args=args, daemon=True).start()
+
+
 class SerialService(CommunicationService):
     connection_timeout_s: int
     connection: socket.socket
@@ -30,24 +37,24 @@ class SerialService(CommunicationService):
         self.connection_timeout_s: int = 5
         self.logger = logging.getLogger(str(__class__.__name__))
 
-    def establish_connection(self) -> bool:
+    def establish_connection(self):
         self.connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        try:
-            # self.connection.bind((HOST, PORT))
-            self.logger.info(f'Attempting to connect... '
-                             f'({self.connection_timeout_s}s)')
-            self.connection.settimeout(self.connection_timeout_s)
-            self.connection.connect((HOST, PORT))
-            self.logger.info(f'Connected to {HOST}:{PORT}')
-            self.connected = True
+        self.logger.info(f'Attempting to connect... '
+                         f'({self.connection_timeout_s}s)')
+        self.connection.settimeout(self.connection_timeout_s)
+        self.connection.connect((HOST, PORT))
+        self.logger.info(f'Connected to {HOST}:{PORT}')
+        self.connected = True
 
-            self.poller = select.poll()
-            self.poller.register(self.connection, select.POLLIN)
-            return True
-        except TimeoutError:
-            self.logger.critical("Couldn't establish connection! Timed out."
-                                 f"Stack: {traceback.format_exc()}")
-            return False
+        self.poller = select.poll()
+        self.poller.register(self.connection, select.POLLIN)
+
+    def setup_poll(self, output_queue: queue.Queue):
+        """Starts the serial service polling operation and starts adding
+        json dictionaries to the output queue."""
+        middleman = queue.Queue()
+        start_thread(self.start_polling_incoming_messages, middleman)
+        start_thread(self.extract_json_from_buffer, middleman, output_queue)
 
     def start_polling_incoming_messages(self, output_queue: queue.Queue):
         """NOTE: This should be run in a separate thread."""
@@ -58,8 +65,23 @@ class SerialService(CommunicationService):
                     if not recv_socket == self.connection.fileno():
                         raise RuntimeError("Received messages from an "
                                            "unexpected socket!")
-                    recv_json = self.get_json()
-                    output_queue.put(recv_json)
+                    recv_str = self.get_str()
+                    output_queue.put(recv_str)
+
+    def extract_json_from_buffer(self, input_queue: queue.Queue,
+                                 output_queue: queue.Queue):
+        message_buffer = ''
+        while True:
+            while not input_queue.empty():
+                try:
+                    fragment = input_queue.get()
+                    message_buffer = message_buffer.join(fragment)
+                except queue.Empty:
+                    pass
+            if message_buffer != '':
+                top_message = re.match('{(.*?)}', message_buffer)
+                message_buffer = re.sub('{(.*?)}', '', message_buffer)
+                output_queue.put(top_message.group(0))
 
     def reconnect(self):
         self.connection.close()
@@ -76,6 +98,7 @@ class SerialService(CommunicationService):
         # connection alive for the whole time the instance is alive
         super(SerialService, self).send_str(data)
         try:
+            print(f"Sending: {data}")
             sent_bytes = self.connection.sendto(
                 bytes(data, encoding="utf-8"), (HOST, PORT))
             return sent_bytes

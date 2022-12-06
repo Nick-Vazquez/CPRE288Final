@@ -7,13 +7,17 @@ import Models.CyBotMessage as Message
 from Services import CommunicationService
 
 
+def start_thread(function, *args):
+    threading.Thread(target=function, args=args, daemon=True).start()
+
+
 class CyBotMessageService:
     def __init__(self, input_q: queue.Queue):
         self.logger = logging.getLogger(__class__.__name__)
-        poller = threading.Thread(target=self.translate_print_recv_messages,
-                                  args=(input_q,))
-        poller.daemon = True
-        poller.start()
+        self.input_q = input_q
+
+    def start(self):
+        start_thread(self.translate_print_recv_messages, self.input_q)
 
     @staticmethod
     def translate(message_input: dict) -> Message.CyBotMessage:
@@ -27,7 +31,9 @@ class CyBotMessageService:
     def translate_print_recv_messages(self, input_q: queue.Queue):
         while True:
             try:
-                msg = input_q.get()
+                msg = input_q.get_nowait()
+                if not msg:
+                    continue
                 translated = self.translate(msg)
                 self.logger.info(translated.json())
             except queue.Empty:

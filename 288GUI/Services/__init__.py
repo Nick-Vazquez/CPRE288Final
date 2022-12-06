@@ -17,6 +17,11 @@ class CommunicationService(abc.ABC):
         pass
 
     @abc.abstractmethod
+    def setup_poll(self, output_queue: queue.Queue):
+        """Starts all polling and adds messages to output_queue."""
+        pass
+
+    @abc.abstractmethod
     def start_polling_incoming_messages(self, output_queue: queue.Queue):
         """Infinite loop to poll incoming messages over the communication
         provider."""

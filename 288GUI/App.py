@@ -5,11 +5,13 @@ import signal
 import threading
 import tkinter as tk
 import tkinter.ttk as ttk
+import typing
+
 import Components.NavBar as NavBar
 import Components.ScanPlotterView as Plotter
 import Components.MovementButtons as Buttons
 from Components.BayOccupancyWidget import BayOccupancyWidget
-from Components.Console import ConsoleUi
+from Components.Console.ConsoleUI import ConsoleUi
 from Models.MovementCallbacks import MovementCallbacks
 import Models.ScanResults as Results
 from Models.NavBarCallbacks import *
@@ -22,6 +24,12 @@ app_screen_width_pct = 75
 app_screen_height_pct = 75
 
 logger = logging.getLogger()
+
+
+def print_queue(queue1, root):
+    if not queue1.empty():
+        print(queue1.get_nowait())
+    root.after(100, print_queue, queue1, root)
 
 
 class App:
@@ -40,19 +48,21 @@ class App:
 
         self.serial_service: CommunicationService = SerialService()
         self.incoming_message_queue: queue.Queue = queue.Queue()
-        self.message_service: CyBotMessageService = \
-            CyBotMessageService(self.incoming_message_queue)
 
         try:
             self.serial_service.establish_connection()
-            recv_thread = threading.Thread(
-                target=self.serial_service.start_polling_incoming_messages,
-                args=(self.incoming_message_queue,))
-            recv_thread.daemon = True
-            recv_thread.start()
+            self.root.after(0, self.serial_service.setup_poll,
+                            self.incoming_message_queue)
         except ConnectionRefusedError:
             logging.warning("Could not establish a connection to the CyBot!")
+            self.root.destroy()
             sys.exit(1)
+
+        print_queue(self.incoming_message_queue, self.root)
+
+        # self.message_service: CyBotMessageService = \
+        #     CyBotMessageService(self.incoming_message_queue)
+        # self.root.after(0, self.message_service.start)
 
         self.movement_service = MovementService(self.serial_service)
 
