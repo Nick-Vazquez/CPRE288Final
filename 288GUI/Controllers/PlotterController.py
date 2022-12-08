@@ -1,10 +1,10 @@
 import logging
 import queue
 
-from Services.CyBotMessageService import Subscriber
 from Components.ScanPlotterView import PlotterView
+from Models.CyBotMessage import ScanResultsMessage
 from Models.ScanResults import ScanResult
-from Models.CyBotMessage import ScanResultsMessage, ScanUpdateType
+from Services.CyBotMessageService import Subscriber
 
 logger = logging.getLogger(__name__)
 

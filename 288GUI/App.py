@@ -1,3 +1,8 @@
+"""Main GUI Application to interface with CyBot.
+
+__created__ = 2022/11/09
+__author__ = Nick Vazquez (nmv)
+"""
 import logging
 import queue
 import random
@@ -7,7 +12,6 @@ import tkinter as tk
 import tkinter.ttk as ttk
 
 import Components.MovementButtons as Buttons
-from Components.BayOccupancyWidget import BayOccupancyWidget
 from Components.Console.ConsoleUI import ConsoleUi
 from Controllers.BayController import BayController
 from Controllers.NavBarController import NavBarController
@@ -31,6 +35,7 @@ MESSAGE_UPDATE_TIME_MS = 100
 
 
 class App:
+    """Main Tkinter application."""
     def __init__(self, root: tk.Tk):
         # Setup window and nav bar
         self.root = root
@@ -96,10 +101,12 @@ class App:
         signal.signal(signal.SIGINT, self.quit)
 
     def quit(self, *args):
+        """Gracefully exits the program, destroying created threads."""
         self.root.destroy()
 
 
 def main():
+    """Starts the GUI app and main thread. Only runs if directly called."""
     logging.basicConfig(level=logging.DEBUG)
     logging.getLogger('matplotlib.font_manager').setLevel(logging.ERROR)
     root = tk.Tk()

@@ -31,7 +31,8 @@ class MovementButtons(ttk.Frame):
         self.bind_all('a', lambda x: self.callbacks.c_clockwise())
         self.bind_all('d', lambda x: self.callbacks.clockwise())
 
-    def set_style(self):
+    @staticmethod
+    def set_style():
         style = ttk.Style()
 
         style.layout(*_generate_arrow_children('Left', 'leftarrow'))

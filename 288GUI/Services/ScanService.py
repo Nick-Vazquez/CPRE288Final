@@ -1,8 +1,7 @@
 import logging
 
+from Models.CyBotMessage import RequestScanMessage, ScanUpdateType
 from Services import CommunicationService
-from Models.CyBotMessage import RequestScanMessage, ScanResultsMessage, \
-    ScanUpdateType
 
 logger = logging.getLogger(__name__)
 

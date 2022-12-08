@@ -13,6 +13,7 @@ from typing import List
 
 class ScanResult:
     """Model for storing results from a CyBOT Scan."""
+
     def __init__(self):
         self.logger = logging.getLogger(__name__)
         self._result: List = []
@@ -32,7 +33,7 @@ class ScanResult:
         self._result[angle] = value
 
     def set_result_at_starting_angle(self, start_angle: int,
-                                      values: List[float]):
+                                     values: List[float]):
         num_vals = len(values)
         self._result[start_angle:start_angle + num_vals] = values
 

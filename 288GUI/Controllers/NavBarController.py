@@ -27,7 +27,6 @@ class NavBarController(Subscriber):
     def opmode_srv(self, value):
         self._opmode_srv = value
 
-
     def setup_callbacks(self):
         nav_callbacks = NavSectionCallbacks(lambda x=0: print('Home'),
                                             lambda x=0: print('Console'),

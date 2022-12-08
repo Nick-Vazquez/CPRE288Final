@@ -1,17 +1,20 @@
+"""Acts as interface between the GUI application and Bay occupancy display.
+
+__created__ = 2022/12/06
+__author__ = Nick Vazquez (nmv)
+"""
 import logging
 import queue
 
 from Components.BayOccupancyWidget import BayOccupancyWidget
+from Models.CyBotMessage import BayResultsMessage
 from Services.CyBotMessageService import Subscriber
-from Components.ScanPlotterView import PlotterView
-from Models.ScanResults import ScanResult
-from Models.CyBotMessage import ScanResultsMessage, ScanUpdateType, \
-    BayResultsMessage
 
 logger = logging.getLogger(__name__)
 
 
 class BayController(Subscriber):
+    """Controller object that holds model and view."""
     def __init__(self, parent):
         super(BayController, self).__init__()
         self.parent = parent
@@ -20,6 +23,8 @@ class BayController(Subscriber):
         self.poll_input_queue()
 
     def poll_input_queue(self):
+        """Check the input queue for any BayResultsMessages, and update the
+        corresponding model and view."""
         try:
             msg = self.input_queue.get_nowait()
             msg: BayResultsMessage

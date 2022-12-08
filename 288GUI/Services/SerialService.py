@@ -68,7 +68,8 @@ class SerialService(CommunicationService):
                     recv_str = self.get_str()
                     output_queue.put(recv_str)
 
-    def extract_json_from_buffer(self, input_queue: queue.Queue,
+    @staticmethod
+    def extract_json_from_buffer(input_queue: queue.Queue,
                                  output_queue: queue.Queue):
         message_buffer = ''
         while True:
