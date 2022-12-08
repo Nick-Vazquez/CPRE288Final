@@ -57,13 +57,41 @@ class ControlSectionCallbacks:
         self._stop = value
 
 
+class OpModeCallbacks:
+    _teleop: Callable[..., Any]
+    _auto: Callable[..., Any]
+
+    def __init__(self, teleop: Callable, auto: Callable):
+        self._teleop = teleop
+        self._auto = auto
+
+    @property
+    def teleop(self):
+        return self._teleop
+
+    @teleop.setter
+    def teleop(self, value: Callable):
+        self._teleop = value
+
+    @property
+    def auto(self):
+        return self._auto
+
+    @auto.setter
+    def auto(self, value: Callable):
+        self._auto = value
+
+
 class NavBarCallbacks:
     _nav_callbacks: NavSectionCallbacks
+    _opmode_callbacks: OpModeCallbacks
     _control_callbacks: ControlSectionCallbacks
 
     def __init__(self, nav_callbacks: NavSectionCallbacks,
+                 opmode_callbacks: OpModeCallbacks,
                  control_callbacks: ControlSectionCallbacks):
         self._nav_callbacks = nav_callbacks
+        self._opmode_callbacks = opmode_callbacks
         self._control_callbacks = control_callbacks
 
     @property
@@ -73,6 +101,14 @@ class NavBarCallbacks:
     @nav_callbacks.setter
     def nav_callbacks(self, value: NavSectionCallbacks):
         self._nav_callbacks = value
+
+    @property
+    def opmode_callbacks(self):
+        return self._opmode_callbacks
+
+    @opmode_callbacks.setter
+    def opmode_callbacks(self, value):
+        self._opmode_callbacks = value
 
     @property
     def control_callbacks(self):

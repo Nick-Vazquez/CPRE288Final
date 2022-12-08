@@ -64,6 +64,7 @@ class RequestScanMessage(CyBotMessage):
     TeleOp mode.
     """
     mes_type: int = Field(3, const=True)
+    update_type: ScanUpdateType
     full: bool
     angles: typing.List[int] = []
 
@@ -112,7 +113,8 @@ if __name__ == '__main__':
     op_mode = OpModeMessage(op_mode=OpModes.TELEOP)
     move = MoveMessage(direction=MovementDirection.CLOCKWISE,
                        magnitude=20)
-    request_scan = RequestScanMessage(full=True)
+    request_scan = RequestScanMessage(update_type=ScanUpdateType.PING,
+                                      full=True)
     scan_results = ScanResultsMessage(update_type=ScanUpdateType.IR,
                                       angles=[5, 10])
     bay_results = BayResultsMessage(bay_num=3, closed=False,

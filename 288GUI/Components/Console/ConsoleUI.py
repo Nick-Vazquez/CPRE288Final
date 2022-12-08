@@ -21,7 +21,7 @@ class ConsoleUi(tk.Frame):
         # Create a ScrolledText widget
         self.scrolled_text = scrolled.ScrolledText(self,
                                                    state='disabled', height=12)
-        self.scrolled_text.grid(row=0, column=0, sticky="nsew")
+        self.scrolled_text.pack(expand=True, fill=tk.X)
         self.scrolled_text.configure(font='TkFixedFont')
         self.scrolled_text.tag_config('INFO', foreground='white')
         self.scrolled_text.tag_config('DEBUG', foreground='gray')
@@ -32,8 +32,7 @@ class ConsoleUi(tk.Frame):
         # Create a logging handler using a queue
         self.log_queue = queue.Queue()
         self.queue_handler = QueueHandler(self.log_queue)
-        formatter = logging.Formatter('%(asctime)s - %(levelname)s - '
-                                      '%(name)s: %(message)s')
+        formatter = logging.Formatter('%(name)s: %(message)s')
         self.queue_handler.setFormatter(formatter)
         logger.addHandler(self.queue_handler)
         # Start polling messages from the queue
