@@ -35,17 +35,10 @@ class NavSectionCallbacks:
 class ControlSectionCallbacks:
     _start: Callable[..., Any]
     _stop: Callable[..., Any]
-    _pause: Callable[..., Any]
-    _reset: Callable[..., Any]
-    _estop: Callable[..., Any]
 
-    def __init__(self, start: Callable, stop: Callable, pause: Callable,
-                 reset: Callable, estop: Callable):
+    def __init__(self, start: Callable, stop: Callable):
         self._start = start
         self._stop = stop
-        self._pause = pause
-        self._reset = reset
-        self._estop = estop
 
     @property
     def start(self):
@@ -63,38 +56,42 @@ class ControlSectionCallbacks:
     def stop(self, value: Callable):
         self._stop = value
 
-    @property
-    def pause(self):
-        return self._pause
 
-    @pause.setter
-    def pause(self, value: Callable):
-        self._pause = value
+class OpModeCallbacks:
+    _teleop: Callable[..., Any]
+    _auto: Callable[..., Any]
 
-    @property
-    def reset(self):
-        return self._reset
-
-    @reset.setter
-    def reset(self, value: Callable):
-        self._reset = value
+    def __init__(self, teleop: Callable, auto: Callable):
+        self._teleop = teleop
+        self._auto = auto
 
     @property
-    def estop(self):
-        return self._estop
+    def teleop(self):
+        return self._teleop
 
-    @estop.setter
-    def estop(self, value: Callable):
-        self._estop = value
+    @teleop.setter
+    def teleop(self, value: Callable):
+        self._teleop = value
+
+    @property
+    def auto(self):
+        return self._auto
+
+    @auto.setter
+    def auto(self, value: Callable):
+        self._auto = value
 
 
 class NavBarCallbacks:
     _nav_callbacks: NavSectionCallbacks
+    _opmode_callbacks: OpModeCallbacks
     _control_callbacks: ControlSectionCallbacks
 
     def __init__(self, nav_callbacks: NavSectionCallbacks,
+                 opmode_callbacks: OpModeCallbacks,
                  control_callbacks: ControlSectionCallbacks):
         self._nav_callbacks = nav_callbacks
+        self._opmode_callbacks = opmode_callbacks
         self._control_callbacks = control_callbacks
 
     @property
@@ -104,6 +101,14 @@ class NavBarCallbacks:
     @nav_callbacks.setter
     def nav_callbacks(self, value: NavSectionCallbacks):
         self._nav_callbacks = value
+
+    @property
+    def opmode_callbacks(self):
+        return self._opmode_callbacks
+
+    @opmode_callbacks.setter
+    def opmode_callbacks(self, value):
+        self._opmode_callbacks = value
 
     @property
     def control_callbacks(self):

@@ -31,6 +31,11 @@ class ScanResult:
         """Sets the result value at a particular angle (index)."""
         self._result[angle] = value
 
+    def set_result_at_starting_angle(self, start_angle: int,
+                                      values: List[float]):
+        num_vals = len(values)
+        self._result[start_angle:start_angle + num_vals] = values
+
     def to_dataframe(self) -> pd.DataFrame:
         """Returns the model in a DataFrame format."""
         result_df = pd.DataFrame(columns=["angle", "value"])
