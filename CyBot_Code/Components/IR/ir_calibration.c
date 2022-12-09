@@ -10,8 +10,10 @@
 #define DELTA ((END - START) / STEPS)
 #define SAMPLES 100
 
+// High if a button is currently being pressed.
 int button_flag = 0;
 
+// Waits for a button to be pressed
 void button_wait()
 {
 

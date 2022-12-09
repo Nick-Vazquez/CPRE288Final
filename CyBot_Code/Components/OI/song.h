@@ -12,6 +12,7 @@
 #include "Components/lcd.h"
 #include <inc/tm4c123gh6pm.h>
 
+// Makes a song for the CyBot to play.
 void make_song(int song_number, int num_notes, unsigned char *notes, unsigned char *duration, oi_t* oi);
 
 
