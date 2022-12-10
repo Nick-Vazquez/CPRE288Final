@@ -1,3 +1,10 @@
+"""Implements a basic socket sender like the one used in the GUI app.
+Messages the CyBot from a cmdline runner.
+For use if the GUI app shits the bed before demo
+
+__created__ = 2022/12/03
+__author__ = Nick Vazquez (nmv)
+"""
 import logging
 import time
 

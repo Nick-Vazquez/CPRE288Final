@@ -122,6 +122,8 @@ class NavSection(ButtonComponent):
 
 
 class OpModeSelector(ButtonComponent):
+    """Displays two buttons to select autonomous or driver controlled
+    operation."""
     def __init__(self, parent, callbacks: OpModeCallbacks,
                  *args, **kwargs):
         super(OpModeSelector, self).__init__(parent, *args, **kwargs)
@@ -129,6 +131,7 @@ class OpModeSelector(ButtonComponent):
         self.draw()
 
     def draw(self):
+        """Renders the component."""
         teleop = tk.Button(self, text="TeleOp", command=self._callbacks.teleop)
         auto = tk.Button(self, text="Autonomous", command=self._callbacks.auto)
 

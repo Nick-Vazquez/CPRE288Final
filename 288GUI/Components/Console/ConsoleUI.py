@@ -1,5 +1,12 @@
-"""Credit: https://beenje.github.io/blog/posts/logging-to-a-tkinter
--scrolledtext-widget/"""
+""" Controller for a console widget. Displays output of the program within
+the GUI application.
+
+Credit: https://beenje.github.io/blog/posts/logging-to-a-tkinter
+-scrolledtext-widget/
+
+__created__ = 2022/11/29
+__author__ = Nick Vazquez (nmv)
+"""
 import logging
 import queue
 import tkinter as tk
@@ -39,6 +46,7 @@ class ConsoleUi(tk.Frame):
         self.after(UPDATE_TIME_MS, self.poll_log_queue)
 
     def display(self, record):
+        """Updates the view with any new messages from the input queue."""
         msg = self.queue_handler.format(record)
         self.scrolled_text.configure(state='normal')
         self.scrolled_text.insert(tk.END, msg + '\n', record.levelname)
@@ -47,6 +55,7 @@ class ConsoleUi(tk.Frame):
         self.scrolled_text.yview(tk.END)
 
     def poll_log_queue(self):
+        """Checks the message input queue and triggers a view update/display."""
         # Check every 100ms if there is a new message in the queue to display
         while True:
             try:

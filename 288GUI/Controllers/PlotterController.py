@@ -1,15 +1,22 @@
+"""
+Acts as interface between plotter view and the external GUI application.
+
+__created__ = 2022/12/05
+__author__ = Nick Vazquez (nmv)
+"""
 import logging
 import queue
 
-from Services.CyBotMessageService import Subscriber
 from Components.ScanPlotterView import PlotterView
+from Models.CyBotMessage import ScanResultsMessage
 from Models.ScanResults import ScanResult
-from Models.CyBotMessage import ScanResultsMessage, ScanUpdateType
+from Services.CyBotMessageService import Subscriber
 
 logger = logging.getLogger(__name__)
 
 
 class PlotterController(Subscriber):
+    """Holds and controls the model and view for plotting scan results."""
     def __init__(self, parent):
         super(PlotterController, self).__init__()
         self.parent = parent
@@ -20,6 +27,7 @@ class PlotterController(Subscriber):
         self.poll_input_queue()
 
     def poll_input_queue(self):
+        """Checks the input queue for any updated ScanResultsMessages."""
         try:
             msg = self.input_queue.get_nowait()
             msg: ScanResultsMessage

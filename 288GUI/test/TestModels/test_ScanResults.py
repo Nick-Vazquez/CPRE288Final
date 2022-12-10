@@ -1,3 +1,8 @@
+"""Tests for a scan result model. Applies for both IR and Ping scans.
+
+__created__ = 2022/11/29
+__author__ = Nick Vazquez (nmv)
+"""
 from unittest import TestCase
 from Models.ScanResults import ScanResult
 

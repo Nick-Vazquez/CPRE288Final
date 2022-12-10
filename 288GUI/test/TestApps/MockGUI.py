@@ -1,4 +1,9 @@
-# echo-client.py
+"""Tests sockets to implement a GUI Continuously sending "Hello, world" to
+the CyBot.
+
+__created__ = 2022/12/03
+__author__ = Nick Vazquez (nmv)
+"""
 
 import socket
 

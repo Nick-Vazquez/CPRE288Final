@@ -1,3 +1,9 @@
+"""Implements a basic socket receiver like the one used in the GUI app.
+For use if the GUI app shits the bed before demo
+
+__created__ = 2022/12/01
+__author__ = Nick Vazquez (nmv)
+"""
 import enum
 import logging
 import queue
@@ -11,6 +17,7 @@ from Services.SerialService import SerialService
 
 
 class TestModes(enum.Enum):
+    """Defines the types of input the receiver is expecting."""
     STRING = enum.auto(),
     JSON = enum.auto()
 

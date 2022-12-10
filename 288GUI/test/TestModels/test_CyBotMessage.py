@@ -1,3 +1,9 @@
+"""
+Tests for translating and sending CyBot messages.
+
+__created__ = 2022/11/18
+__author__ = Nick Vazquez (nmv)
+"""
 from unittest import TestCase
 
 import Models.CyBotMessage
@@ -6,6 +12,7 @@ import Models.CyBotMessage as Message
 
 class TestScanMessage(TestCase):
     def setUp(self) -> None:
+        """Creates dummy data to be used in tests, and the associated model."""
         self.in_data = dict(update_type=Message.ScanUpdateType.IR,
                             angles=[120], distances=[59.5])
         self.model = Models.CyBotMessage.ScanResultsMessage(**self.in_data)
@@ -25,6 +32,7 @@ class TestScanMessage(TestCase):
 
 class TestMoveMessage(TestCase):
     def setUp(self) -> None:
+        """Creates dummy data to be used in tests, and the associated model."""
         self.in_data = dict(direction=Message.MovementDirection.FORWARD,
                             magnitude=5)
         self.model = Message.MoveMessage(**self.in_data)
