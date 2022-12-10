@@ -1,3 +1,8 @@
+"""Used to interface with the CyBot over a TCP/IP Serial connection.
+
+__created__ = 2022/11/15
+__author__ = Nick Vazquez (nmv)
+"""
 import json
 import logging
 import queue
@@ -18,16 +23,20 @@ PORT = 65433
 
 
 def set_host_and_port(host: str, port: int):
+    """Sets the global connection info used to connect to the CyBot.
+    Can be used to override what the service connects to."""
     global HOST, PORT
     HOST = host
     PORT = port
 
 
 def start_thread(function, *args):
+    """Ass function to get around tkinter threading issues."""
     threading.Thread(target=function, args=args, daemon=True).start()
 
 
 class SerialService(CommunicationService):
+    """Implementation of a CyBot communication provider."""
     connection_timeout_s: int
     connection: socket.socket
     poller: select.poll
@@ -38,6 +47,8 @@ class SerialService(CommunicationService):
         self.logger = logging.getLogger(str(__class__.__name__))
 
     def establish_connection(self):
+        """Starts the connection to the intended host:port and starts
+        polling for new messages."""
         self.connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.logger.info(f'Attempting to connect... '
                          f'({self.connection_timeout_s}s)')
@@ -71,6 +82,9 @@ class SerialService(CommunicationService):
     @staticmethod
     def extract_json_from_buffer(input_queue: queue.Queue,
                                  output_queue: queue.Queue):
+        """Because the service receives 4096-bit strings on each receive
+        command, this scans an input buffer of these strings to find the first
+        intact message and sends this through the output queue."""
         message_buffer = ''
         while True:
             while not input_queue.empty():
@@ -92,16 +106,21 @@ class SerialService(CommunicationService):
                 output_queue.put(loaded)
 
     def reconnect(self):
+        """Tries to reconnect to the host:port if a connection is dropped."""
         self.connection.close()
         self.connection.connect((HOST, PORT))
 
     def __del__(self):
+        """Gracefully closes out of the serial connection when the provider
+        is no longer needed. _Instructions for the garbage person_"""
         self.logger.debug("Closing...")
         if hasattr(self, 'connection'):
             self.logger.debug("Closed connection!")
             self.connection.close()
 
     def send_str(self, data: str):
+        """Sends an utf-8 encoded byte representation of the given string
+        over the socket connection."""
         # Hopefully we won't need to use connect here and can keep the
         # connection alive for the whole time the instance is alive
         super(SerialService, self).send_str(data)
@@ -117,6 +136,7 @@ class SerialService(CommunicationService):
 
     # TODO: Check to see if this stops at a \0.
     def get_str(self) -> str:
+        """Receives a 4096-bit frame of messages on the incoming socket."""
         super(SerialService, self).get_str()
         data = self.connection.recv(4096)
         decoded = data.decode('utf-8')

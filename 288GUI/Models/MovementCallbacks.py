@@ -1,6 +1,10 @@
+"""
+Callbacks to be used with views to define button and other widget callbacks.
+"""
 from typing import Callable
 
 
+# noinspection PyMissingOrEmptyDocstring
 class MovementCallbacks:
     """Defines the callbacks used in a movement control widget."""
     def __init__(self, forward: Callable, reverse: Callable,

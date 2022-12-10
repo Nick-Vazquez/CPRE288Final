@@ -34,6 +34,8 @@ class ScanResult:
 
     def set_result_at_starting_angle(self, start_angle: int,
                                      values: List[float]):
+        """Given a starting angle and distances found after said angle,
+        update the stored results."""
         num_vals = len(values)
         self._result[start_angle:start_angle + num_vals] = values
 

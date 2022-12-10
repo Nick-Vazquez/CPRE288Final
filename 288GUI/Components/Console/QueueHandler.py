@@ -14,4 +14,5 @@ class QueueHandler(logging.Handler):
         self.log_queue = log_queue
 
     def emit(self, record):
+        """Overrides default implementation to send to another output queue."""
         self.log_queue.put(record)

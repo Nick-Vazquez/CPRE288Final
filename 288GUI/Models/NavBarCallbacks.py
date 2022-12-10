@@ -1,7 +1,13 @@
+"""Defines models that are used to hold application control callbacks.
+
+__created__ = 2022/11/12
+__author__ = Nick Vazquez (nmv)
+"""
 from typing import Callable, Any
 
 
 class NavSectionCallbacks:
+    """Callbacks used to navigate from application page to page."""
     def __init__(self, home: Callable, console: Callable, about: Callable):
         self._home = home
         self._console = console
@@ -9,6 +15,7 @@ class NavSectionCallbacks:
 
     @property
     def home(self):
+        """Callback to return to the home (main) screen."""
         return self._home
 
     @home.setter
@@ -17,6 +24,7 @@ class NavSectionCallbacks:
 
     @property
     def console(self):
+        """Callback to get to a console-only screen."""
         return self._console
 
     @console.setter
@@ -25,6 +33,7 @@ class NavSectionCallbacks:
 
     @property
     def about(self):
+        """Callback to get to the about screen."""
         return self._about
 
     @about.setter
@@ -33,6 +42,7 @@ class NavSectionCallbacks:
 
 
 class ControlSectionCallbacks:
+    """Defines callbacks used to control mission execution on the bot."""
     _start: Callable[..., Any]
     _stop: Callable[..., Any]
 
@@ -42,6 +52,7 @@ class ControlSectionCallbacks:
 
     @property
     def start(self):
+        """Start function to command bot start"""
         return self._start
 
     @start.setter
@@ -50,6 +61,7 @@ class ControlSectionCallbacks:
 
     @property
     def stop(self):
+        """Start function to command bot stop"""
         return self._stop
 
     @stop.setter
@@ -58,6 +70,8 @@ class ControlSectionCallbacks:
 
 
 class OpModeCallbacks:
+    """Defines callbacks to be called when the driver selects an operation
+    mode."""
     _teleop: Callable[..., Any]
     _auto: Callable[..., Any]
 
@@ -67,6 +81,7 @@ class OpModeCallbacks:
 
     @property
     def teleop(self):
+        """Commands a bot to enter driver-controlled mode."""
         return self._teleop
 
     @teleop.setter
@@ -75,6 +90,7 @@ class OpModeCallbacks:
 
     @property
     def auto(self):
+        """Commands a bot to enter autonomous mode."""
         return self._auto
 
     @auto.setter
@@ -83,6 +99,7 @@ class OpModeCallbacks:
 
 
 class NavBarCallbacks:
+    """Contains all callback classes used within the top navbar."""
     _nav_callbacks: NavSectionCallbacks
     _opmode_callbacks: OpModeCallbacks
     _control_callbacks: ControlSectionCallbacks
@@ -96,6 +113,7 @@ class NavBarCallbacks:
 
     @property
     def nav_callbacks(self):
+        """Callbacks of the application page navigation section."""
         return self._nav_callbacks
 
     @nav_callbacks.setter
@@ -104,6 +122,7 @@ class NavBarCallbacks:
 
     @property
     def opmode_callbacks(self):
+        """Callbacks of the operational mode selector section."""
         return self._opmode_callbacks
 
     @opmode_callbacks.setter
@@ -112,6 +131,7 @@ class NavBarCallbacks:
 
     @property
     def control_callbacks(self):
+        """Callbacks of the start/stop section."""
         return self._control_callbacks
 
     @control_callbacks.setter
