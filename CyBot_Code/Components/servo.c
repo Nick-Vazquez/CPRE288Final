@@ -1,5 +1,6 @@
 #include <Components/servo.h>
 
+// Determines if the servo can move to the desired angle.
 int can_position_change(float current, int dir, float delta)
 {
     if(dir == 1)
@@ -24,7 +25,9 @@ int can_position_change(float current, int dir, float delta)
 //    return START_VAL - CYCLES;
 //}
 
-// This is done by creating a linear relationship between the recorded match values at 180 and 0 degrees
+// Determines what the match value should be to set the servo
+// to the specified angle.
+// This is done by creating a linear relationship between the recorded match values at 180 and 0 degrees.
 int determine_match(float degrees)
 {
     return (((left_val - right_val) / 180.0) * degrees) + right_val;
@@ -160,7 +163,4 @@ void servo_calib(int bound_override)
 
         lcd_printf("Match Prescale: %d\nMatch: %d\nServo Pos: %.1f\nDirection: %d", TIMER1_TBPMR_R, TIMER1_TBMATCHR_R, servo_pos, dir);
     }
-
-
-
 }

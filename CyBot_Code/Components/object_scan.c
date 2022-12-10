@@ -1,10 +1,13 @@
 #include <Components/object_scan.h>
 
+// Converts radial to linear width.
 float radial_to_linear_width(int angle, float distance)
 {
     return (2 * distance * sin((PI/180) * (angle / 2)));
 }
 
+// Gets the prvious object count index. Returns zero
+// if no objects are recorded.
 int previous_object_count_index(int object_count)
 {
     if(object_count > 0)
@@ -17,6 +20,7 @@ int previous_object_count_index(int object_count)
     }
 }
 
+// Filter for if the provided distance is within the defined range.
 int dist_in_range(int dist)
 {
     if(dist <= farthest_distance && dist >= SHORTEST_DISTANCE)
@@ -55,7 +59,7 @@ int compute_sample_average_int(int* samples, int num_samples)
     return (total/num_samples);
 }
 
-
+// Determines if sequential samples are within the defined distance bounds.
 float samples_within_tolerance(float* samples, int num_samples, float tolerance, float farthest_distance, float shortest_distance)
 {
     int i;
@@ -94,6 +98,7 @@ object_t get_smallest_object(objects_data_t data)
     return result;
 }
 
+// All JSON global declarations.
 object_t* objects;
 object_t* objects_start;
 

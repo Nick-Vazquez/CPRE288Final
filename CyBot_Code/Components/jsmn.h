@@ -467,6 +467,7 @@ JSMN_API void jsmn_init(jsmn_parser *parser) {
 
 #define DATA_SIZE 100
 
+// Gets the index of a data token with the specified key.
 int get_token_index(char* key, char* js, jsmntok_t* tok, int size)
 {
    int i;
@@ -500,6 +501,8 @@ int get_token_index(char* key, char* js, jsmntok_t* tok, int size)
     return -1;
 }
 
+// Writes the data string to a destination string. Uses the specified key to find the
+// data string.
 void get_jsmn_data(char* dest, char* key, char* js, jsmntok_t* tok, int size)
 {
     int i;
@@ -521,6 +524,8 @@ void get_jsmn_data(char* dest, char* key, char* js, jsmntok_t* tok, int size)
        
 }
 
+// Writes the data string to a destination string. Uses the specified key and array index
+// to find the data string.
 void get_array_element(char* dest, char* key, char* js, jsmntok_t* tok, int index, int size)
 {
     int start = 0;
@@ -531,11 +536,13 @@ void get_array_element(char* dest, char* key, char* js, jsmntok_t* tok, int inde
     strncpy(dest, js + tok[start + index].start, tok[start + index].end - tok[start + index].start);
 }
 
+// Gets the array size of a data string that represents an array.
 int array_size(char* key, char* js, jsmntok_t* tok, int size)
 {
    return tok[get_token_index(key, js, tok, size)].size;
 }
 
+// Clears token array.
 void clear_tokens(jsmntok_t* tok, int size)
 {
     int i;
