@@ -22,12 +22,25 @@ extern float farthest_distance;
 #define PING_CENTER_DIST 100
 
 // In mm
-#define BACKWARDS_CORRECT 0
+// Backwards driving is a little less than expected.
+// This provides the correction distance.
+#define BACKWARDS_CORRECT 75
+
+// Min distance to be driven for room entry.
 #define ROOM_ENTRY_DIST 80
 
+// Defines what fraction of the back wall distance should be driven.
 #define DRIVE_DIST_FACTOR (2.0/3.0)
+
+// Defines threshold for gap detection. If the current side wall
+// reading is greated than the inital side wall reading + the threshold,
+// then a gap has been crossed.
 #define SIDE_WALL_THRESHOLD 20.0
+
+// Reading count for IR and ping sensor.
 #define SAMPLES 100
+
+// Default drive power for motors.
 #define DRIVE_POWER 200
 
 // This is the extra distance that will be driven after the move
@@ -38,6 +51,7 @@ extern float farthest_distance;
 #define GAP_EXTRA_DIST 20
 
 // In ms
+// Delays
 #define MOVE_DELAY 500
 #define GAP_TIME 500
 #define SERVO_DELAY 750
@@ -45,6 +59,7 @@ extern float farthest_distance;
 // Malloc sizes
 #define MAX_STRING_SIZE 100
 
+// Max tokens for the JSMN library.
 #define MAX_TOKENS 100
 
 // Relative to starting position
@@ -58,6 +73,8 @@ typedef enum message_types
 typedef enum op_modes
 {AUTO, TELEOP} op_modes_t;
 
+// Gets the highest ping value out of the sample_count readings.
+// This is done because at large distances, the highest ping value is the most accurate.
 double highest_ping(int sample_count)
 {
     double highest = 0;
@@ -77,6 +94,7 @@ double highest_ping(int sample_count)
     return highest;
 }
 
+// Returns the average of sample_count ping distance readings.
 double ping_dist_avg(int sample_count)
 {
     double sum = 0.0;
@@ -90,6 +108,7 @@ double ping_dist_avg(int sample_count)
     return sum / sample_count;
 }
 
+// Returns the average of sample_count IR distance readings.
 double ir_dist_avg(int sample_count)
 {
     double sum = 0.0;
@@ -103,6 +122,7 @@ double ir_dist_avg(int sample_count)
     return sum / sample_count;
 }
 
+// Gets the back wall distance.
 double get_back_wall_dist(int sample_count)
 {
     servo_move(90.0);
@@ -125,6 +145,8 @@ double get_back_wall_dist(int sample_count)
     }
 }
 
+// Gets the side wall distance. The ping is selected when the IR is out of its
+// range of 9 to 50 (in CM).
 double get_side_wall_dist(int sample_count)
 {
     servo_move(180.0);
@@ -133,7 +155,7 @@ double get_side_wall_dist(int sample_count)
     return ir_dist_avg(sample_count);
 }
 
-// Backwards driving has be inconsistent, this will turn and then drive forward
+// Backwards driving has be inconsistent, this will turn and then drive forward.
 void backwards_drive(oi_t* oi, float current_heading, int dist, float power)
 {
     turn_to(oi, current_heading + 180);
@@ -186,6 +208,7 @@ void clear_string(char* str)
     *str = 0;
 }
 
+// Allocates needed heap space.
 void final_alloc()
 {
     oi = oi_alloc();
@@ -196,6 +219,7 @@ void final_alloc()
     jsmn_init(&parser);
 }
 
+// Frees heap space.
 void final_free()
 {
     oi_free(oi);
@@ -206,9 +230,10 @@ void final_free()
     free(tokens);
 }
 
+// Helper function to init all sensors.
 void init()
 {
-    cybot_calib_values_t calib = set_cybot_calibration(5);
+    cybot_calib_values_t calib = set_cybot_calibration(10);
 
     final_alloc();
 
@@ -225,6 +250,7 @@ void init()
     oi_init(oi);
 }
 
+// Main function.
 int main()
 {
     int dist_target = 0;
@@ -248,47 +274,45 @@ int main()
 
     // Wait for autonomous start
 
-    //lcd_printf("Waiting for command...");
+    lcd_printf("Waiting for command...");
 
-    //uart_receive_str(uart_rec);
+    uart_receive_str(uart_rec);
 
     //strcpy(uart_rec, "{\"mes_type\": 1, \"op_mode\": \"AUTO\"}");
 
-    //lcd_printf("Command received!");
+    lcd_printf("Command received!");
 
-    //timer_waitMillis(1000);
+    timer_waitMillis(1000);
 
     //strcpy(uart_rec, "{\"mes_type\": 1, \"op_mode\": \"TELEOP\"}");
 
-    //lcd_printf("%s", uart_rec);
+    lcd_printf("%s", uart_rec);
 
-    //timer_waitMillis(2000);
+    timer_waitMillis(2000);
 
-//    if(get_message_type(uart_rec) == OP_MODE_SEL)
-//    {
-//        // Determine op mode
-//        clear_tokens(tokens, MAX_TOKENS);
-//        jsmn_parse(&parser, uart_rec, strlen(uart_rec), tokens, MAX_TOKENS);
-//        jsmn_init(&parser);
-//
-//        clear_string(jsmn_data);
-//
-//        get_jsmn_data(jsmn_data, "op_mode", uart_rec, tokens, MAX_TOKENS);
-//
-//        if(!strcmp("AUTO", jsmn_data))
-//        {
-//            lcd_printf("Autonomous was selected!");
-//            op_mode = AUTO;
-//
-//        }
-//        else
-//        {
-//            lcd_printf("Tele-Op was selected!");
-//            op_mode = TELEOP;
-//        }
-//    }
+    if(get_message_type(uart_rec) == OP_MODE_SEL)
+    {
+        // Determine op mode
+        clear_tokens(tokens, MAX_TOKENS);
+        jsmn_parse(&parser, uart_rec, strlen(uart_rec), tokens, MAX_TOKENS);
+        jsmn_init(&parser);
 
-    op_mode = AUTO;
+        clear_string(jsmn_data);
+
+        get_jsmn_data(jsmn_data, "op_mode", uart_rec, tokens, MAX_TOKENS);
+
+        if(!strcmp("AUTONOMOUS", jsmn_data))
+        {
+            lcd_printf("Autonomous was selected!");
+            op_mode = AUTO;
+
+        }
+        else
+        {
+            lcd_printf("Tele-Op was selected!");
+            op_mode = TELEOP;
+        }
+    }
 
     if(op_mode == AUTO)
     {
@@ -301,6 +325,10 @@ int main()
             side_wall_dist = get_side_wall_dist(SAMPLES);
             timer_waitMillis(SERVO_DELAY);
             back_wall_dist = get_back_wall_dist(SAMPLES);
+
+            // Point servo at side wall
+            servo_move(180.0);
+            timer_waitMillis(SERVO_DELAY);
 
             lcd_printf("Back wall dist: %.3lf", back_wall_dist);
 
@@ -316,10 +344,6 @@ int main()
                 // Drive loop
                 while(dist_current < dist_target)
                 {
-                    // Point servo at side wall
-                    servo_move(180.0);
-                    timer_waitMillis(SERVO_DELAY);
-
                     dist_reading = ir_dist_avg(SAMPLES);
 
                     lcd_printf("Thresh: %.3lf\nCurrent: %.3lf", side_wall_dist + SIDE_WALL_THRESHOLD, dist_reading);
@@ -385,12 +409,13 @@ int main()
                         if(cliff)
                         {
                             lcd_printf("Cliff Detected!");
+
                             oi_setWheels(0.0, 0.0);
                             timer_waitMillis(MOVE_DELAY);
 
                             // Traditional move used since cannot turn when cliff is detected
                             // since a turn will put it in the hole.
-                            move(oi, wall_dir ? 270.0 : 90.0, (ROOM_ENTRY_DIST + side_wall_dist - dist_drive_cliff + PING_CENTER_DIST), DRIVE_POWER, BACKWARD);
+                            move(oi, wall_dir ? 270.0 : 90.0, (ROOM_ENTRY_DIST + side_wall_dist - dist_drive_cliff + PING_CENTER_DIST + BACKWARDS_CORRECT), DRIVE_POWER, BACKWARD);
                             timer_waitMillis(MOVE_DELAY);
                         }
                         else
@@ -426,6 +451,9 @@ int main()
                             objects_data_t data = scan(160, 20, 0);
                             lcd_printf("Object count: %d", data.object_count);
                             timer_waitMillis(1000);
+                            // Point servo at side wall
+                            servo_move(180.0);
+                            timer_waitMillis(SERVO_DELAY);
                             // Back out
                             backwards_drive(oi, wall_dir ? 270.0 : 90.0, exit_room_dist, DRIVE_POWER);
                             timer_waitMillis(MOVE_DELAY);
@@ -480,79 +508,79 @@ int main()
     }
     else
     {
-//        while(1)
-//        {
-//            // Tele-Op
-//            // Clear string out
-//            int i;
-//            for(i = 0; i < MAX_STRING_SIZE; ++i)
-//            {
-//                uart_rec[i] = 0;
-//            }
-//
-//            lcd_printf("Waiting for command...");
-//            uart_receive_str(uart_rec);
-//
-//            switch(get_message_type(uart_rec))
-//            {
-//            case MOVE:
-//            {
-//                // Get direction and mag
-//                move_dir_t drive_dir = FORWARD;
-//                turn_dir_t turn_dir = CLOCKWISE;
-//                double mag = 0;
-//
-//                int do_turn = 0;
-//
-//                clear_tokens(tokens, MAX_TOKENS);
-//                jsmn_parse(&parser, uart_rec, strlen(uart_rec), tokens, MAX_TOKENS);
-//                jsmn_init(&parser);
-//
-//                clear_string(jsmn_data);
-//
-//                get_jsmn_data(jsmn_data, "direction", uart_rec, tokens, MAX_TOKENS);
-//
-//                if(!strcmp(jsmn_data, "CLOCKWISE"))
-//                {
-//                    do_turn = 1;
-//                    turn_dir = CLOCKWISE;
-//                }
-//                else if(!strcmp(jsmn_data, "C_CLOCKWISE"))
-//                {
-//                    do_turn = 1;
-//                    turn_dir = COUNTER_CLOCKWISE;
-//                }
-//                else if(!strcmp(jsmn_data, "FORWARD"))
-//                {
-//                    do_turn = 0;
-//                    drive_dir = FORWARD;
-//                }
-//                else if(!strcmp(jsmn_data, "REVERSE"))
-//                {
-//                    do_turn = 0;
-//                    drive_dir = BACKWARD;
-//                }
-//
-//                clear_string(jsmn_data);
-//                get_jsmn_data(jsmn_data, "magnitude", uart_rec, tokens, MAX_TOKENS);
-//
-//                sscanf(jsmn_data, "%lf", &mag);
-//
-//                clear_string(jsmn_data);
-//
-//                if(do_turn)
-//                {
-//                    turn(oi, mag, turn_dir);
-//                }
-//                else
-//                {
-//                    move(oi, get_orientation().heading, mag, DRIVE_POWER, drive_dir);
-//                }
-//
-//                break;
-//            }
-//            }
-//        }
+        while(1)
+        {
+            // Tele-Op
+            // Clear string out
+            int i;
+            for(i = 0; i < MAX_STRING_SIZE; ++i)
+            {
+                uart_rec[i] = 0;
+            }
+
+            lcd_printf("Waiting for tele-op command...");
+            uart_receive_str(uart_rec);
+
+            switch(get_message_type(uart_rec))
+            {
+            case MOVE:
+            {
+                // Get direction and mag
+                move_dir_t drive_dir = FORWARD;
+                turn_dir_t turn_dir = CLOCKWISE;
+                double mag = 0;
+
+                int do_turn = 0;
+
+                clear_tokens(tokens, MAX_TOKENS);
+                jsmn_parse(&parser, uart_rec, strlen(uart_rec), tokens, MAX_TOKENS);
+                jsmn_init(&parser);
+
+                clear_string(jsmn_data);
+
+                get_jsmn_data(jsmn_data, "direction", uart_rec, tokens, MAX_TOKENS);
+
+                if(!strcmp(jsmn_data, "CLOCKWISE"))
+                {
+                    do_turn = 1;
+                    turn_dir = CLOCKWISE;
+                }
+                else if(!strcmp(jsmn_data, "C_CLOCKWISE"))
+                {
+                    do_turn = 1;
+                    turn_dir = COUNTER_CLOCKWISE;
+                }
+                else if(!strcmp(jsmn_data, "FORWARD"))
+                {
+                    do_turn = 0;
+                    drive_dir = FORWARD;
+                }
+                else if(!strcmp(jsmn_data, "REVERSE"))
+                {
+                    do_turn = 0;
+                    drive_dir = BACKWARD;
+                }
+
+                clear_string(jsmn_data);
+                get_jsmn_data(jsmn_data, "magnitude", uart_rec, tokens, MAX_TOKENS);
+
+                sscanf(jsmn_data, "%lf", &mag);
+
+                clear_string(jsmn_data);
+
+                if(do_turn)
+                {
+                    turn(oi, mag, turn_dir);
+                }
+                else
+                {
+                    move(oi, get_orientation().heading, mag, DRIVE_POWER, drive_dir);
+                }
+
+                break;
+            }
+            }
+        }
 
 
     }

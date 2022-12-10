@@ -13,11 +13,6 @@
 
 float calculate_ir_distance(int raw_ir_val)
 {
-//    if(raw_ir_val <= THROW_AWAY)
-//    {
-//        return 0;
-//    }
-
     float result = (2 * ir_calib_a) / (float)((-ir_calib_b + sqrt(pow(ir_calib_b, 2) - (4 * ir_calib_a * (ir_calib_c - raw_ir_val)))));
 
     if(result <= 0)

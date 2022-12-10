@@ -9,7 +9,7 @@
 #define COMPONENTS_IR_IR_CALIBRATION_H_
 #include <Components/cybot_select.h>
 
+// Runs the calibration routine given a calibration struct
 void ir_calibrate(cybot_calib_values_t calib);
-
 
 #endif /* COMPONENTS_IR_IR_CALIBRATION_H_ */

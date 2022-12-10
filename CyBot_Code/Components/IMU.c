@@ -13,6 +13,7 @@ int orientation_flag = 0;
 char* data;
 
 // This will poll a while loop until all provided flags are 0
+// Waits until all specified MCS statuses are achieved.
 void status_wait(int num, ...)
 {
     int mask = 0;
@@ -35,6 +36,7 @@ void status_wait(int num, ...)
     }
 }
 
+// Resets the IMU
 void reset_imu()
 {
     GPIO_PORTB_DATA_R &= 0xBF;
@@ -239,6 +241,7 @@ calib_t get_calib_state()
 
 }
 
+// Converts given calibration state to a string equivalent.
 char* calib_to_string(calib_state_t state)
 {
     switch(state)
@@ -285,6 +288,7 @@ void calibrate_imu()
     }
 }
 
+// Helper function that sends the specified register address to the IMU via I2C.
 void send_reg_addr(char reg_addr)
 {
 

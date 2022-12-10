@@ -76,8 +76,8 @@ cybot_calib_values_t set_cybot_calibration(int cybot_num)
     }
     case 10:
     {
-        cybot_calib.left_calibration_value = 1314250;
-        cybot_calib.right_calibration_value = 295750;
+        cybot_calib.left_calibration_value = 20481;
+        cybot_calib.right_calibration_value = 49313;
         cybot_calib.ir_a = -49129.0;
         cybot_calib.ir_b = 19105.0;
         cybot_calib.ir_c = -111.12;

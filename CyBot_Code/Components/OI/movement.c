@@ -25,6 +25,8 @@ int current_met_target(float target, float current, int direction)
     }
 }
 
+// Returns 1 if the turn operation has met the target destination.
+// Returns 0 otherwise.
 int met_turn_target(float target, int direction)
 {
     return get_target_delta(target, direction) <= TURN_LOW_DELTA;
@@ -46,6 +48,8 @@ float get_target_delta(float target, int direction)
     }
 }
 
+// Given the linear constants, determines the desired turning power based
+// upon how much farther the CyBot needs to turn.
 float get_linear_turn_power(float delta)
 {
     if(delta > TURN_HIGH_DELTA)
@@ -81,16 +85,12 @@ void set_drive_power(float target_heading, float default_power)
 
     if(clockwise_error <= counter_clockwise_error)
     {
-        //lcd_printf("Current: %.3f\nError: %.3f", current, clockwise_error);
-
         // Adjust clockwise
         scaler = ((MAX_POWER - default_power) * get_linear_drive_power(clockwise_error));
         oi_setWheels(default_power - scaler, default_power + scaler);
     }
     else
     {
-        //lcd_printf("Current: %.3f\nError: %.3f", current, counter_clockwise_error);
-
         // Adjust counterclockwise
         scaler = ((MAX_POWER - default_power) * get_linear_drive_power(counter_clockwise_error));
         oi_setWheels(default_power + scaler, default_power - scaler);
@@ -149,7 +149,6 @@ void turn(oi_t* oi, float degrees, turn_dir_t direction)
 
         oi_setWheels((-direction * (MAX_POWER * power)), (direction * (MAX_POWER * power)));
         lcd_printf("Degree Delta: %.3f", get_target_delta(target, direction));
-        //timer_waitMillis(100);
     }
 
     oi_setWheels(0, 0);
@@ -171,101 +170,3 @@ void turn_to(oi_t* oi, float dest)
         turn(oi, counter_clockwise_delta, COUNTER_CLOCKWISE);
     }
 }
-
-
-// -1 = backwards 1 = forwards
-//void move_collision(oi_t* oi, int distance, float power, int move_around, int current_angle, int* bump_left, int* bump_right)
-//{
-//    float displacement = 0.0;
-//    float target = distance;
-//    oi_setWheels((MAX_POWER * power) , (MAX_POWER * power));
-//
-//    while(!current_met_target(distance, displacement, 1))
-//    {
-//        oi_update(oi);
-//
-//        if(oi->bumpLeft)
-//        {
-//            *bump_left = 1;
-//
-//            if(move_around)
-//            {
-//                // Increasing the target by 100 since the robot moves 10 cm back
-//                target += BACKUP_DIST;
-//
-//                // Back 10cm
-//                move(oi, BACKUP_DIST, power, -1);
-//
-//                // Turn 90 degrees clockwise
-//                turn(oi, 90 + current_angle, CLOCKWISE);
-//
-//                // Forward 10cm
-//                move(oi, BACKUP_DIST, power, 1);
-//
-//                // Turn 90 degrees counter-clockwise
-//                turn(oi, 90, COUNTER_CLOCKWISE);
-//
-//                oi_update(oi);
-//                oi_update(oi);
-//
-//                // Resume movement
-//                oi_setWheels((MAX_POWER * power) , (MAX_POWER * power));
-//            }
-//            else
-//            {
-//                move(oi, BACKUP_DIST / 2, power, -1);
-//                oi_setWheels(0, 0);
-//
-//                break;
-//            }
-//
-//        }
-//        else if(oi->bumpRight)
-//        {
-//
-//            *bump_right = 1;
-//
-//            if(move_around)
-//            {
-//                // Increasing the target by 150 since the robot moves 10 cm back
-//                target += BACKUP_DIST;
-//
-//                // Back 10cm
-//                move(oi, BACKUP_DIST, power, -1);
-//
-//                // Turn 90 degrees counter-clockwise
-//                turn(oi, 90 + current_angle, COUNTER_CLOCKWISE);
-//
-//                // Forward 10cm
-//                move(oi, BACKUP_DIST, power, 1);
-//
-//                // Turn 90 degrees clockwise
-//                turn(oi, 90, CLOCKWISE);
-//
-//                oi_update(oi);
-//                oi_update(oi);
-//
-//                // Resume movement
-//                oi_setWheels((MAX_POWER * power), (MAX_POWER * power));
-//            }
-//            else
-//            {
-//                move(oi, BACKUP_DIST / 2, power, -1);
-//                oi_setWheels(0, 0);
-//
-//                break;
-//            }
-//
-//        }
-//
-//        displacement += oi->distance;
-//
-//    }
-//
-//
-//    oi_setWheels(0, 0);
-//}
-
-
-
-

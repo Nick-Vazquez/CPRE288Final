@@ -31,31 +31,40 @@
 #define DRIVE_HIGH_ERROR 10.0
 #define DRIVE_LOW_ERROR 1.0
 
+// Represents possible turning directions
 typedef enum turn_dir
 {
     CLOCKWISE = 1, COUNTER_CLOCKWISE = -1
 } turn_dir_t;
 
+// Represents possible movement directions
 typedef enum move_dir
 {
     FORWARD = 1, BACKWARD = -1
 } move_dir_t;
 
-void imu_init();
-
 // Move helper functions
+// Returns the degree difference between the current heading and a target heading
+// with respect to a direction of rotation.
 float get_target_delta(float target, int direction);
+
+// Given the current error from the desired heading, returns the needed power to correct
+// the error during a drive call.
 float get_linear_drive_power(float error);
+
+// Sets the CyBot drive power based upon the difference between the current heading
+// and the desired heading. The powers start from default_power.
 void set_drive_power(float target_heading, float default_power);
 // End helper functions
 
+// Drives the CyBot a specified distance at a specified heading and direction.
+// Uses IMU heading correction code to drive at the specified heading.
 void move(oi_t* oi, float start_heading, float distance, float power, int direction);
 
+// Turns the Cybot a specified degrees from the current heading given a specified direction.
 void turn(oi_t* oi, float degrees, turn_dir_t direction);
 
+// Turns the Cybot to a specified angle.
 void turn_to(oi_t* oi, float dest);
-
-//void move_collision(oi_t* oi, int distance, float power, int move_around, int current_angle, int* bump_left, int* bump_right);
-
 
 #endif /* MOVEMENT_H_ */

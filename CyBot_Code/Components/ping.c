@@ -23,6 +23,8 @@ double calc_distance(int ping_time)
     return ((SOUND_SPEED / 2) *  (ping_time * (1.0 / (CLOCK * pow(10, 6)))));
 }
 
+// Stores the time in the ISR volatile variables.
+// The value of -1 is used to denote the lack of a meaningful value.
 void store_time()
 {
     // Bits 0 - 15 contain the timer value, bits 23 - 16 contain the prescalar
